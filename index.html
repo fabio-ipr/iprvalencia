@@ -35,6 +35,12 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 .hero-right-label{font-size:12px;opacity:0.8;margin-bottom:6px}
 .hero-role{font-size:15px;font-weight:600}
 
+.schedules{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:20px}
+.schedule-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--line)}
+.schedule-item:last-child{border-bottom:none}
+.schedule-day{font-weight:600;color:var(--text)}
+.schedule-time{color:var(--amber)}
+
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
 .card{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all .2s}
 .card:hover{border-color:var(--amber);transform:translateY(-4px)}
@@ -83,12 +89,23 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 <div class="hero-left">
 <h3>Próximo culto</h3>
 <div class="hero-count" id="countdown">—</div>
-<div class="hero-when">Servicio principal · <strong id="next-sunday-label">Domingo 22 sept</strong> · 9:30 AM</div>
+<div class="hero-when" id="next-service">—</div>
 </div>
 <div class="hero-right">
-<span class="hero-right-label">Equipo asignado</span>
-<div class="hero-role">Equipo multimedia</div>
+<span class="hero-right-label">Horarios de cultos</span>
+<div class="hero-role">7 días a la semana</div>
 </div>
+</div>
+</div>
+
+<div class="schedules">
+<div class="schedule-item">
+<span class="schedule-day">🗓️ Jueves</span>
+<span class="schedule-time">20:30</span>
+</div>
+<div class="schedule-item">
+<span class="schedule-day">🗓️ Domingo</span>
+<span class="schedule-time">11:00 · 18:30</span>
 </div>
 </div>
 
@@ -206,16 +223,45 @@ function requestPin(){
   }
 }
 
+function getNextService(){
+  const now = new Date();
+  let nextService = null;
+  let nextServiceDate = null;
+
+  // Servicios: Jueves 20:30, Domingo 11:00, Domingo 18:30
+  const services = [
+    { day: 4, hour: 20, min: 30, name: 'Jueves 20:30' },
+    { day: 0, hour: 11, min: 0, name: 'Domingo 11:00' },
+    { day: 0, hour: 18, min: 30, name: 'Domingo 18:30' }
+  ];
+
+  for(let service of services){
+    let serviceDate = new Date(now);
+    let daysAhead = service.day - serviceDate.getDay();
+    
+    if(daysAhead <= 0) daysAhead += 7;
+    
+    serviceDate.setDate(serviceDate.getDate() + daysAhead);
+    serviceDate.setHours(service.hour, service.min, 0, 0);
+
+    if(serviceDate > now){
+      if(!nextService || serviceDate < nextServiceDate){
+        nextService = service;
+        nextServiceDate = serviceDate;
+      }
+    }
+  }
+
+  return { service: nextService, date: nextServiceDate };
+}
+
 function updateCountdown(){
-  const today = new Date();
-  const dayOfWeek = today.getDay();
-  let daysUntilSunday = (7 - dayOfWeek) % 7 || 7;
-  const nextSunday = new Date(today);
-  nextSunday.setDate(today.getDate() + daysUntilSunday);
-  nextSunday.setHours(9, 30, 0, 0);
+  const { service, date } = getNextService();
+  
+  if(!service) return;
 
   const now = new Date();
-  const diff = nextSunday - now;
+  const diff = date - now;
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -223,9 +269,10 @@ function updateCountdown(){
   document.getElementById('countdown').textContent = 
     days > 0 ? `${days}d ${hours}h` : `${hours}h ${minutes}m`;
   
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  document.getElementById('next-sunday-label').textContent = 
-    nextSunday.toLocaleDateString('es-ES', options);
+  const options = { weekday: 'long', month: 'long', day: 'numeric' };
+  const dateStr = date.toLocaleDateString('es-ES', options);
+  document.getElementById('next-service').textContent = 
+    `${service.name} · ${dateStr}`;
 }
 
 updateCountdown();
