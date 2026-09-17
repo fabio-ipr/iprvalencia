@@ -3,18 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IPR Valencia — Soluciones Digitales Inteligentes</title>
+<title>IPR Valencia — Portal Multimedia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#12161D;--panel:#1A202A;--panel-2:#212936;--line:#2C3644;--text:#E7ECF3;--muted:#8C97A7;--amber:#E8A33D;--tally:#FF4436;--ok:#4FB286;--radius:10px}
+:root{--bg:#12161D;--panel:#1A202A;--panel-2:#212936;--line:#2C3644;--text:#E7ECF3;--muted:#8C97A7;--amber:#E8A33D;--ok:#4FB286;--radius:10px}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
-h1,h2,h3,.cond{font-family:'Barlow Condensed','Inter',sans-serif;letter-spacing:.01em}
+h1,h2,h3{font-family:'Barlow Condensed','Inter',sans-serif;letter-spacing:.01em}
 button,input,select{font-family:inherit;font-size:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 
 .navbar{background:linear-gradient(90deg,#12161D,#1A202A);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;gap:20px;position:sticky;top:0;z-index:100}
 .navbar h1{margin:0;font-size:22px;font-weight:700;color:var(--amber)}
@@ -26,28 +25,41 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 .container{max-width:1200px;margin:0 auto;padding:30px 20px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:24px}
 .panel h2{margin-top:0;font-size:24px;color:var(--text)}
+
+.hero{background:linear-gradient(135deg,#12161D,#1A202A);color:#fff;border-radius:12px;padding:32px;margin-bottom:28px;border:1px solid var(--line)}
+.hero-content{display:flex;justify-content:space-between;align-items:start;gap:20px}
+.hero-left h3{font-size:12px;text-transform:uppercase;letter-spacing:.1em;opacity:0.8;margin:0}
+.hero-count{font-size:48px;font-weight:700;margin:10px 0}
+.hero-when{font-size:14px;opacity:0.9;margin-bottom:16px}
+.hero-right{background:rgba(255,255,255,0.1);border-radius:8px;padding:16px;border:1px solid rgba(255,255,255,0.15);text-align:center;min-width:200px}
+.hero-right-label{font-size:12px;opacity:0.8;margin-bottom:6px}
+.hero-role{font-size:15px;font-weight:600}
+
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
 .card{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all .2s}
 .card:hover{border-color:var(--amber);transform:translateY(-4px)}
 .card h3{margin:0 0 10px;font-size:18px;color:var(--text)}
 .card p{margin:0;font-size:14px;color:var(--muted)}
+.card-stat{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
+.card-stat:first-child{border-top:0;padding-top:0}
+.stat-label{color:var(--text);font-weight:500}
+.stat-value{font-weight:700;color:var(--amber)}
 
 .btn{background:var(--amber);border:none;color:#1A1204;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:600;transition:all .15s}
 .btn:hover{background:#F0B356}
+.btn-secondary{background:var(--panel-2);border:1px solid var(--line);color:var(--text)}
+.btn-secondary:hover{border-color:var(--amber)}
 
 .content-section{display:none}
 .content-section.active{display:block}
 
-.form-group{margin-bottom:16px}
-.form-group label{display:block;margin-bottom:6px;font-size:13px;color:var(--muted);font-weight:500}
-.form-group input,.form-group textarea{width:100%;padding:10px;background:#151B24;border:1px solid var(--line);border-radius:6px;color:var(--text);font-family:inherit}
-.form-group textarea{resize:vertical;min-height:100px}
-
 .alert{background:rgba(79,178,134,.1);border:1px solid rgba(79,178,134,.3);color:var(--ok);padding:12px 14px;border-radius:6px;margin-bottom:16px;font-size:13px}
 
-.pin-box{max-width:400px;background:var(--panel-2);border:1px solid var(--line);padding:20px;border-radius:var(--radius);margin-top:20px}
-.pin-error{color:var(--tally);font-size:13px;margin-top:10px;display:none}
-
+@media(max-width:768px){
+  .hero-content{flex-direction:column}
+  .hero-right{min-width:auto}
+  .grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -66,23 +78,59 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 
 <!-- INICIO -->
 <div id="inicio" class="content-section active">
-<div class="panel">
-<h2>¡Bienvenido! 👋</h2>
-<p>Portal multimedia de IPR Valencia. Gestiona formación, escalas y recursos multimedia.</p>
+<div class="hero">
+<div class="hero-content">
+<div class="hero-left">
+<h3>Próximo culto</h3>
+<div class="hero-count" id="countdown">—</div>
+<div class="hero-when">Servicio principal · <strong id="next-sunday-label">Domingo 22 sept</strong> · 9:30 AM</div>
+</div>
+<div class="hero-right">
+<span class="hero-right-label">Equipo asignado</span>
+<div class="hero-role">Equipo multimedia</div>
+</div>
+</div>
+</div>
+
 <div class="grid">
+<div class="card">
+<h3>📹 Últimos archivos</h3>
+<div class="card-stat">
+<span class="stat-label">Cargando...</span>
+</div>
+</div>
+
+<div class="card">
+<h3>📅 Estado escalas</h3>
+<div class="card-stat">
+<span class="stat-label">Puestos confirmados</span>
+<span class="stat-value">4/5</span>
+</div>
+<div class="card-stat">
+<span class="stat-label">Cultos del mes</span>
+<span class="stat-value">8</span>
+</div>
+<div class="card-stat">
+<span class="stat-label">Voluntarios activos</span>
+<span class="stat-value">12</span>
+</div>
+</div>
+
 <div class="card" onclick="switchTab('formacion')">
 <h3>🎓 Formación</h3>
-<p>Accede a módulos de capacitación multimedia.</p>
+<div class="card-stat">
+<span class="stat-label">Módulos disponibles</span>
+<span class="stat-value">1</span>
 </div>
-<div class="card" onclick="switchTab('escalas')">
-<h3>📅 Escalas</h3>
-<p>Consulta y gestiona asignaciones de voluntarios.</p>
-</div>
-<div class="card" onclick="switchTab('multimedia')">
-<h3>📁 Multimedia</h3>
-<p>Todos los archivos y recursos en un lugar.</p>
+<div class="card-stat">
+<span class="stat-label">Estado</span>
+<span style="color:var(--amber)">En curso</span>
 </div>
 </div>
+</div>
+
+<div class="alert">
+<strong>✨ Nota:</strong> Portal multimedia de IPR Valencia. Gestiona formación, escalas y recursos.
 </div>
 </div>
 
@@ -126,8 +174,7 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 <h2>📅 Escalas Multimedia</h2>
 <p>Gestión de asignaciones de voluntarios.</p>
 <button class="btn" onclick="location.href='/escala-lectura/'">👁️ Ver Escala (Lectura)</button>
-<button class="btn" onclick="requestPin()" style="margin-left:10px">🔐 Gestionar Escala (Admin)</button>
-<div id="pin-prompt"></div>
+<button class="btn btn-secondary" onclick="requestPin()" style="margin-left:10px">🔐 Gestionar Escala (Admin)</button>
 </div>
 </div>
 
@@ -158,6 +205,31 @@ function requestPin(){
     alert('❌ PIN incorrecto');
   }
 }
+
+function updateCountdown(){
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  let daysUntilSunday = (7 - dayOfWeek) % 7 || 7;
+  const nextSunday = new Date(today);
+  nextSunday.setDate(today.getDate() + daysUntilSunday);
+  nextSunday.setHours(9, 30, 0, 0);
+
+  const now = new Date();
+  const diff = nextSunday - now;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+  document.getElementById('countdown').textContent = 
+    days > 0 ? `${days}d ${hours}h` : `${hours}h ${minutes}m`;
+  
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('next-sunday-label').textContent = 
+    nextSunday.toLocaleDateString('es-ES', options);
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
 </script>
 
 </body>
