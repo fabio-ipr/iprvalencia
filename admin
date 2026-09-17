@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — IPR Valencia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#12161D;--panel:#1A202A;--panel-2:#212936;--line:#2C3644;--text:#E7ECF3;--muted:#8C97A7;--amber:#E8A33D;--radius:10px}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;margin:0;padding:20px}
+.container{max-width:800px;margin:0 auto}
+.header{background:var(--panel);border:1px solid var(--line);padding:20px;border-radius:var(--radius);margin-bottom:20px}
+.header h1{margin:0;font-size:24px;color:var(--amber)}
+.form-group{margin-bottom:16px}
+label{display:block;margin-bottom:6px;font-size:13px;color:var(--muted);font-weight:500}
+input,textarea{width:100%;padding:10px;background:#151B24;border:1px solid var(--line);border-radius:6px;color:var(--text);font-family:inherit}
+textarea{resize:vertical;min-height:100px}
+.btn{background:var(--amber);border:none;color:#1A1204;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:600;margin-right:10px}
+.btn:hover{background:#F0B356}
+.btn-danger{background:#FF4436}
+.btn-danger:hover{background:#FF6B54}
+.form-box{background:var(--panel);border:1px solid var(--line);padding:20px;border-radius:var(--radius);margin-bottom:20px}
+.module-item{background:var(--panel-2);border:1px solid var(--line);padding:16px;margin-bottom:12px;border-radius:6px;display:flex;justify-content:space-between;align-items:center}
+.module-info h4{margin:0 0 4px;color:var(--text)}
+.module-info p{margin:0;font-size:13px;color:var(--muted)}
+.pin-prompt{background:rgba(255,68,54,.1);border:1px solid rgba(255,68,54,.3);padding:16px;border-radius:6px;margin-bottom:20px}
+.success{background:rgba(79,178,134,.1);border:1px solid rgba(79,178,134,.3);color:#4FB286;padding:12px;border-radius:6px;margin-bottom:16px;display:none}
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="header">
+<h1>🔐 Panel de Administración</h1>
+<p>Gestiona los módulos de formación</p>
+</div>
+
+<div id="pin-section" class="pin-prompt">
+<label>PIN de Administrador:</label>
+<input type="password" id="pin-input" placeholder="Ingresa el PIN">
+<button class="btn" onclick="checkPin()">Acceder</button>
+</div>
+
+<div id="admin-panel" style="display:none">
+<div class="success" id="success-msg">✅ Cambios guardados correctamente</div>
+
+<div class="form-box">
+<h2>Nuevo Módulo de Formación</h2>
+<div class="form-group">
+<label>Título del módulo</label>
+<input type="text" id="title" placeholder="Ej: Cámara Móvil - Sony A7 III">
+</div>
+<div class="form-group">
+<label>Descripción</label>
+<textarea id="description" placeholder="Descripción breve del módulo"></textarea>
+</div>
+<div class="form-group">
+<label>Emoji/Icono</label>
+<input type="text" id="emoji" placeholder="Ej: 📹" value="📚">
+</div>
+<div class="form-group">
+<label>Enlace Google Drive (opcional)</label>
+<input type="text" id="drive-link" placeholder="https://drive.google.com/file/d/...">
+</div>
+<div class="form-group">
+<label>Estado</label>
+<select id="status" style="width:100%;padding:10px;background:#151B24;border:1px solid var(--line);border-radius:6px;color:var(--text)">
+<option value="Disponible">✅ Disponible</option>
+<option value="Próximamente">⏳ Próximamente</option>
+</select>
+</div>
+<button class="btn" onclick="addModule()">Agregar Módulo</button>
+</div>
+
+<h2>Módulos Actuales</h2>
+<div id="modules-list"></div>
+</div>
+</div>
+
+<script>
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1fGfunU4_aQTGU3xzWJSVCPKaD0NyqV5YIJZfUKBFDME/edit';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/d/YOUR_SCRIPT_ID/usercopy'; // Reemplazar después
+const PIN = 'iprmultimedia';
+
+function checkPin(){
+  const input = document.getElementById('pin-input').value;
+  if(input === PIN){
+    document.getElementById('pin-section').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    loadModules();
+  } else {
+    alert('❌ PIN incorrecto');
+  }
+}
+
+function addModule(){
+  const data = {
+    action: 'add',
+    title: document.getElementById('title').value,
+    description: document.getElementById('description').value,
+    emoji: document.getElementById('emoji').value,
+    driveLink: document.getElementById('drive-link').value,
+    status: document.getElementById('status').value
+  };
+
+  if(!data.title || !data.description){
+    alert('⚠️ Rellena título y descripción');
+    return;
+  }
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  .then(() => {
+    document.getElementById('success-msg').style.display = 'block';
+    setTimeout(() => document.getElementById('success-msg').style.display = 'none', 3000);
+    document.getElementById('title').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('emoji').value = '📚';
+    document.getElementById('drive-link').value = '';
+    loadModules();
+  })
+  .catch(err => console.error(err));
+}
+
+function loadModules(){
+  fetch(APPS_SCRIPT_URL + '?action=list')
+    .then(r => r.json())
+    .then(data => {
+      let html = '';
+      data.modules.forEach(m => {
+        html += `
+          <div class="module-item">
+            <div class="module-info">
+              <h4>${m.emoji} ${m.title}</h4>
+              <p>${m.description}</p>
+              <p style="margin-top:6px"><small>Estado: ${m.status}</small></p>
+            </div>
+            <button class="btn btn-danger" onclick="deleteModule('${m.title}')">Eliminar</button>
+          </div>
+        `;
+      });
+      document.getElementById('modules-list').innerHTML = html;
+    });
+}
+
+function deleteModule(title){
+  if(confirm('¿Eliminar este módulo?')){
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'delete', title })
+    })
+    .then(() => loadModules());
+  }
+}
+</script>
+
+</body>
+</html>
