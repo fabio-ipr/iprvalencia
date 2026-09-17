@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escala Multimedia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--bg:#12161D;--panel:#1A202A;--panel-2:#212936;--line:#2C3644;--text:#E7ECF3;--muted:#8C97A7;--amber:#E8A33D;--tally:#FF4436;--ok:#4FB286;--radius:10px}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.cond{font-family:'Barlow Condensed','Inter',sans-serif;letter-spacing:.01em}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.bar{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,#161C25,#12161D);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.logo{width:42px;height:42px;border-radius:9px;flex:none;background:var(--panel-2);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;cursor:pointer;color:var(--muted);font-size:10px;text-align:center;line-height:1.1;padding:3px}
+.logo img{width:100%;height:100%;object-fit:contain}
+.brand h1{font-size:23px;margin:0;font-weight:600;line-height:1}
+.brand p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+.bar-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{font-size:12px;padding:5px 11px;border-radius:20px;background:#161C25;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill.ok{color:var(--ok);border-color:rgba(79,178,134,.45)}
+.pill.warn{color:#FFB4AC;border-color:rgba(255,68,54,.4)}
+.pill.busy{color:var(--amber);border-color:rgba(232,163,61,.45)}
+.btn{background:var(--panel-2);border:1px solid var(--line);color:var(--text);padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:500;transition:border-color .15s,background .15s}
+.btn:hover{border-color:#3E4A5C;background:#26303E}
+.btn.primary{background:var(--amber);border-color:var(--amber);color:#1A1204;font-weight:600}
+.btn.primary:hover{background:#F0B356}
+.btn.ghost{background:transparent}
+.btn.sm{padding:6px 10px;font-size:13px}
+.btn.danger:hover{border-color:var(--tally);color:#FF7C71}
+.tabs{display:flex;gap:4px;padding:0 16px;border-bottom:1px solid var(--line);background:#141922}
+.tab{background:none;border:none;border-bottom:2px solid transparent;padding:11px 14px;cursor:pointer;color:var(--muted);font-weight:500}
+.tab[aria-selected="true"]{color:var(--text);border-bottom-color:var(--amber)}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 90px}
+.cols{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}
+.panel-h{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.panel-h h2{margin:0;font-size:18px;font-weight:600}
+.panel-b{padding:16px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label{font-size:12px;color:var(--muted)}
+input,select{background:#151B24;border:1px solid var(--line);border-radius:7px;padding:9px 10px;min-width:0;width:100%}
+input::placeholder{color:#5C6675}
+.fld-name{flex:1 1 320px;min-width:250px}
+.fld-name input{font-size:16px;padding:11px 12px}
+@media (max-width:760px){.fld-name{flex-basis:100%;width:100%}.row .field{flex:1 1 130px}}
+.svc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
+.svc-h{display:flex;gap:14px;align-items:center;padding:13px 15px;background:#1D242F;border-bottom:1px solid var(--line)}
+.daychip{width:54px;flex:none;text-align:center;border-radius:8px;padding:5px 0;background:var(--panel-2);border:1px solid var(--line)}
+.daychip .d{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:600;line-height:1}
+.daychip .m{font-size:10px;color:var(--muted);text-transform:lowercase}
+.svc-t{min-width:0;flex:1}
+.svc-t .name{font-weight:600}
+.svc-t .meta{font-size:13px;color:var(--muted)}
+.svc-acts{display:flex;gap:6px;flex-wrap:wrap}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1px;background:var(--line)}
+.slot{background:var(--panel);padding:11px 15px;display:flex;align-items:center;gap:10px}
+.slot .rname{font-size:13px;color:var(--muted);width:104px;flex:none}
+.slot select{flex:1}
+.slot.gap select{border-color:#5C2620;background:#1F1615}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none}
+.slot.gap .dot{background:var(--tally)}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px}
+.item .grow{flex:1;min-width:0}
+.item .sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.count{font-family:'Barlow Condensed',sans-serif;font-size:19px;min-width:22px;text-align:right;color:var(--amber)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.chip{font-size:12px;padding:4px 9px;border-radius:20px;cursor:pointer;border:1px solid var(--line);background:#151B24;color:var(--muted)}
+.chip[aria-pressed="true"]{background:rgba(232,163,61,.16);border-color:var(--amber);color:var(--amber)}
+.alert{display:flex;gap:9px;padding:10px 12px;border-radius:8px;background:rgba(255,68,54,.09);border:1px solid rgba(255,68,54,.3);font-size:13px;margin-bottom:8px}
+.empty{color:var(--muted);font-size:14px;padding:22px 6px;text-align:center}
+.hint{color:var(--muted);font-size:12.5px;margin:9px 0 0}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#E7ECF3;color:#12161D;padding:11px 18px;border-radius:9px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.5);z-index:60}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<header class="bar">
+<div class="brand">
+<div class="logo" id="logoBox" title="Pulsa para subir el logo">Logo</div>
+<div><h1>Escala Multimedia</h1><p id="subtitle">Equipo de transmisión</p></div>
+</div>
+<div class="bar-right">
+<span class="pill" id="syncPill">Solo este dispositivo</span>
+<input type="month" id="monthPick" style="width:auto">
+<button class="btn" id="btnCloud">Hoja</button>
+<button class="btn" id="btnWhats">Copiar para WhatsApp</button>
+<button class="btn primary" id="btnPdf">Descargar PDF</button>
+</div>
+</header>
+
+<nav class="tabs" role="tablist">
+<button class="tab" role="tab" data-tab="escala" aria-selected="true">Escala</button>
+<button class="tab" role="tab" data-tab="equipo" aria-selected="false">Equipo</button>
+<button class="tab" role="tab" data-tab="funciones" aria-selected="false">Funciones</button>
+</nav>
+
+<main class="wrap">
+<section id="tab-escala">
+<div class="cols">
+<div>
+<div class="panel" style="margin-bottom:16px">
+<div class="panel-b">
+<div class="row">
+<div class="field fld-name"><label for="nsName">Nombre de la reunión</label><input id="nsName" placeholder="Culto de domingo"></div>
+<div class="field" style="width:130px"><label for="nsDate">Fecha</label><input type="date" id="nsDate"></div>
+<div class="field" style="width:100px"><label for="nsTime">Hora</label><input type="time" id="nsTime" value="10:00"></div>
+<button class="btn" id="btnAddSvc">Añadir</button>
+</div>
+<div class="row" style="margin-top:12px">
+<div class="field" style="width:140px"><label for="genDay">Repetir todos los</label>
+<select id="genDay">
+<option value="0">domingos</option><option value="1">lunes</option><option value="2">martes</option>
+<option value="3">miércoles</option><option value="4">jueves</option><option value="5">viernes</option><option value="6">sábados</option>
+</select>
+</div>
+<button class="btn ghost" id="btnGen">Crear todo el mes</button>
+<span class="hint" style="margin:0 0 9px">Usa el nombre y la hora de arriba.</span>
+</div>
+</div>
+</div>
+<div id="svcList"></div>
+</div>
+
+<aside>
+<div class="panel" style="margin-bottom:16px">
+<div class="panel-h"><h2>Revisión del mes</h2></div>
+<div class="panel-b" id="reviewBox"></div>
+</div>
+<div class="panel">
+<div class="panel-h"><h2>Turnos por persona</h2></div>
+<div class="panel-b"><div class="list" id="loadBox"></div></div>
+</div>
+</aside>
+</div>
+</section>
+
+<section id="tab-equipo" class="hidden">
+<div class="panel" style="max-width:720px">
+<div class="panel-h"><h2>Voluntarios</h2></div>
+<div class="panel-b">
+<div class="row" style="margin-bottom:16px">
+<div class="field" style="flex:1"><label for="newVol">Nombre</label><input id="newVol" placeholder="Nombre y apellido"></div>
+<button class="btn" id="btnAddVol">Añadir persona</button>
+</div>
+<div class="list" id="volList"></div>
+<p class="hint">Abre la ficha de cada persona para su foto, contacto, funciones y experiencia previa.</p>
+</div>
+</div>
+</section>
+
+<section id="tab-funciones" class="hidden">
+<div class="panel" style="max-width:620px">
+<div class="panel-h"><h2>Funciones del equipo</h2></div>
+<div class="panel-b">
+<div class="row" style="margin-bottom:16px">
+<div class="field" style="flex:1"><label for="newRole">Función</label><input id="newRole" placeholder="Ej. Cámara móvil"></div>
+<button class="btn" id="btnAddRole">Añadir función</button>
+</div>
+<div class="list" id="roleList"></div>
+<p class="hint">El orden de esta lista es el orden en que salen en el PDF. Usa las flechas para moverlas.</p>
+</div>
+</div>
+</section>
+</main>
+
+<div class="overlay hidden" id="cloudWrap">
+<div class="sheet" style="max-width:520px" role="dialog" aria-modal="true" aria-label="Conexión con la hoja">
+<div class="sheet-h"><h2 style="margin:0;font-size:19px">Guardar en Google Sheets</h2></div>
+<div class="sheet-b">
+<div class="field"><label for="cUrl">Dirección de la aplicación web</label>
+<input id="cUrl" placeholder="https://script.google.com/macros/s/…/exec"></div>
+<div class="field"><label for="cPin">PIN</label>
+<input id="cPin" placeholder="El mismo que pusiste en el código"></div>
+<p class="hint" style="margin:0">Todos los que abran la app con esta dirección y este PIN comparten la misma escala. Al conectar se descargará lo que haya en la hoja.</p>
+</div>
+<div class="sheet-f">
+<button class="btn ghost" id="cOff">Desconectar</button>
+<button class="btn ghost" id="cPush">Subir lo de aquí</button>
+<button class="btn primary" id="cSave">Conectar y descargar</button>
+</div>
+</div>
+</div>
+
+</main>
+
+<script>
+window.onerror = function(msg, src, ln){
+  var d = document.createElement('div');
+  d.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;z-index:99;background:#5C2620;color:#fff;padding:10px 12px;border-radius:8px;font:13px sans-serif';
+  d.textContent = 'Error: ' + msg + ' (línea ' + ln + ')';
+  document.body.appendChild(d);
+};
+
+const uid = () => Math.random().toString(36).slice(2,9);
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIAS  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+function demoData(){
+  const V = (id,name,roles,phone,mail,since,avail,exp,notes) =>
+    ({id, name, roles, phone, mail, since, birth:'', photo:null, avail, exp, notes});
+  const roles = [
+    {id:'r1', name:'Dirección de corte'},
+    {id:'r2', name:'PTZ'},
+    {id:'r3', name:'Cámara móvil'},
+    {id:'r4', name:'Streaming (OBS)'},
+    {id:'r5', name:'Holyrics'},
+    {id:'r6', name:'Sonido'},
+    {id:'r7', name:'Fotografía'}
+  ];
+  const team = [
+    V('v1','Marcos Ferreira',['r1','r2','r4'],'+34 611 22 33 44','marcos.f@correo.com','marzo de 2021',[0,3],
+      [{place:'Iglesia Central de Vigo',role:'Dirección de corte',time:'3 años'},{place:'Productora Vía Norte',role:'Cámara de eventos',time:'1 año'}],
+      'Conoce bien el ATEM. Puede formar a gente nueva en corte.'),
+    V('v2','Lucía Ramos',['r3','r7'],'+34 622 33 44 55','lucia.ramos@correo.com','enero de 2023',[0],
+      [{place:'Estudio Luz Marina',role:'Fotografía de eventos',time:'2 años'}],
+      'Prefiere cámara móvil en la primera parte del culto.'),
+    V('v3','Iván Delgado',['r5','r4'],'+34 633 44 55 66','ivan.d@correo.com','septiembre de 2024',[0,3],
+      [{place:'Campamento juvenil Betel',role:'Proyección y letras',time:'2 veranos'}], ''),
+    V('v4','Nerea Castillo',['r5','r7'],'+34 644 55 66 77','nerea.c@correo.com','mayo de 2025',[0],
+      [], 'Nueva en Holyrics, aún acompañada.'),
+    V('v5','Rubén Alcántara',['r6','r4'],'+34 655 66 77 88','ruben.a@correo.com','febrero de 2020',[0,3],
+      [{place:'Sala Arenal',role:'Técnico de sonido en directo',time:'5 años'}],
+      'Referencia para la X32.'),
+    V('v6','Sara Montoya',['r3','r5'],'+34 666 77 88 99','sara.m@correo.com','octubre de 2023',[3],
+      [], 'Solo puede entre semana durante el curso.'),
+    V('v7','Diego Pinheiro',['r1','r2','r6'],'+34 677 88 99 00','diego.p@correo.com','agosto de 2019',[0,3],
+      [{place:'Igreja Nova Vida, Lisboa',role:'Dirección de transmisión',time:'4 años'}],
+      'Segundo director de corte.'),
+    V('v8','Carla Ibáñez',['r7','r3'],'+34 688 99 00 11','carla.i@correo.com','abril de 2022',[0],
+      [{place:'Revista local Enfoque',role:'Reportaje fotográfico',time:'2 años'}], '')
+  ];
+  const today = new Date();
+  const y = today.getFullYear(), m = today.getMonth();
+  const services = [];
+  const d = new Date(y, m, 1);
+  while(d.getMonth() === m){
+    if(d.getDay() === 0){
+      services.push({id:uid(), name:'Culto de domingo', date:iso(d), time:'10:00', slots:{}});
+    }
+    if(d.getDay() === 3){
+      services.push({id:uid(), name:'Culto de oración', date:iso(d), time:'20:00', slots:{}});
+    }
+    d.setDate(d.getDate()+1);
+  }
+  const rota = {
+    r1:['v1','v7'], r2:['v7','v1'], r3:['v2','v6','v8'], r4:['v3','v5','v1'],
+    r5:['v4','v6','v3'], r6:['v5','v7'], r7:['v8','v2','v4']
+  };
+  services.forEach((s,i)=>{ roles.forEach(r=>{ const p = rota[r.id]; s.slots[r.id] = p[i % p.length]; }); });
+  return {roles, team, services, logo:null, subtitle:'Equipo de transmisión'};
+}
+
+const K_DATOS = 'escala-multimedia', K_CFG = 'escala-multimedia-cfg';
+let cfg = {url:'', pin:''};
+let state = null;
+let month = new Date().toISOString().slice(0,7);
+
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const $ = s => document.querySelector(s);
+
+async function lget(k){
+  try{ if(window.storage){ const r = await window.storage.get(k); if(r && r.value) return r.value; } }catch(e){}
+  try{ return localStorage.getItem(k); }catch(e){}
+  return null;
+}
+async function lset(k, v){
+  try{ if(window.storage) await window.storage.set(k, v); }catch(e){}
+  try{ localStorage.setItem(k, v); }catch(e){}
+}
+
+function pill(txt, cls){
+  const p = document.getElementById('syncPill');
+  p.textContent = txt;
+  p.className = 'pill' + (cls ? ' ' + cls : '');
+}
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    await lset(K_DATOS, JSON.stringify(state));
+    if(cfg.url) push();
+    else pill('Solo este dispositivo');
+  }, 700);
+}
+
+async function push(){
+  pill('Guardando…', 'busy');
+  try{
+    const r = await fetch(cfg.url, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({pin: cfg.pin, data: state})
+    });
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || 'Error de la hoja');
+    pill('Guardado en la hoja', 'ok');
+  }catch(e){
+    pill('Sin conexión con la hoja', 'warn');
+  }
+}
+
+async function pull(){
+  if(!cfg.url) return;
+  pill('Descargando…', 'busy');
+  try{
+    const r = await fetch(cfg.url + '?pin=' + encodeURIComponent(cfg.pin) + '&t=' + Date.now());
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || 'Error de la hoja');
+    if(j.data && j.data.roles){
+      state = j.data; normalizar();
+      await lset(K_DATOS, JSON.stringify(state));
+      renderAll(); pill('Al día con la hoja', 'ok');
+    }else{
+      pill('La hoja estaba vacía', 'busy');
+      await push();
+    }
+  }catch(e){
+    pill('Sin conexión con la hoja', 'warn');
+    toast('No se pudo leer la hoja: ' + e.message);
+  }
+}
+
+function normalizar(){
+  if(!state.subtitle) state.subtitle = 'Equipo de transmisión';
+  state.roles = state.roles || []; state.team = state.team || []; state.services = state.services || [];
+  state.team.forEach(v=>{
+    v.roles = v.roles || []; v.exp = v.exp || []; v.avail = v.avail || [];
+    ['phone','mail','birth','since','notes'].forEach(k => { if(v[k] == null) v[k] = ''; });
+    if(v.photo === undefined) v.photo = null;
+  });
+}
+
+async function load(){
+  const raw = await lget(K_DATOS);
+  if(raw){ try{ return JSON.parse(raw); }catch(e){} }
+  return demoData();
+}
+
+const monthServices = () =>
+  state.services.filter(s => s.date.startsWith(month))
+                .sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+
+const volName = id => (state.team.find(v => v.id === id) || {}).name || '';
+const roleName = id => (state.roles.find(r => r.id === id) || {}).name || '';
+
+function renderAll(){ renderServices(); renderReview(); renderLoad(); renderTeam(); renderRoles(); renderLogo(); }
+
+function renderServices(){
+  const box = $('#svcList'), list = monthServices();
+  if(!list.length){
+    box.innerHTML = `<div class="panel"><div class="empty">No hay cultos en ${MESES[Number(month.slice(5,7))-1]}.<br>Añade uno arriba o crea el mes completo.</div></div>`;
+    return;
+  }
+  box.innerHTML = list.map(s=>{
+    const d = parse(s.date);
+    const slots = state.roles.map(r=>{
+      const val = s.slots[r.id] || '';
+      const opts = state.team.filter(v => v.roles.includes(r.id))
+        .map(v => `<option value="${v.id}" ${val===v.id?'selected':''}>${esc(v.name)}</option>`).join('');
+      return `<div class="slot ${val?'':'gap'}">
+        <span class="dot"></span>
+        <span class="rname">${esc(r.name)}</span>
+        <select data-svc="${s.id}" data-role="${r.id}">
+          <option value="">— sin asignar —</option>${opts}
+        </select></div>`;
+    }).join('');
+    return `<article class="svc">
+      <div class="svc-h">
+        <div class="daychip"><div class="d">${d.getDate()}</div><div class="m">${DIAS[d.getDay()].slice(0,3)}</div></div>
+        <div class="svc-t">
+          <div class="name">${esc(s.name)}</div>
+          <div class="meta">${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}</div>
+        </div>
+        <div class="svc-acts">
+          <button class="btn sm ghost" data-wa1="${s.id}">WhatsApp</button>
+          <button class="btn sm ghost" data-pdf1="${s.id}">PDF</button>
+          <button class="btn sm ghost danger" data-del="${s.id}">Quitar</button>
+        </div>
+      </div>
+      <div class="slots">${slots}</div>
+    </article>`;
+  }).join('');
+
+  box.querySelectorAll('select[data-svc]').forEach(sel=>{
+    sel.onchange = () => {
+      const s = state.services.find(x => x.id === sel.dataset.svc);
+      s.slots[sel.dataset.role] = sel.value;
+      save(); renderServices(); renderReview(); renderLoad();
+    };
+  });
+  box.querySelectorAll('[data-del]').forEach(b=>{
+    b.onclick = () => { state.services = state.services.filter(s => s.id !== b.dataset.del); save(); renderAll(); };
+  });
+  box.querySelectorAll('[data-pdf1]').forEach(b=>{
+    b.onclick = () => makePDF(state.services.filter(s => s.id === b.dataset.pdf1));
+  });
+  box.querySelectorAll('[data-wa1]').forEach(b=>{
+    b.onclick = () => copyText(svcText(state.services.find(s => s.id === b.dataset.wa1)));
+  });
+}
+
+function renderReview(){
+  const list = monthServices(), out = [];
+  list.forEach(s=>{
+    const d = parse(s.date), tag = `${d.getDate()} ${MESES[d.getMonth()].slice(0,3)}`;
+    const missing = state.roles.filter(r => !s.slots[r.id]).map(r => r.name);
+    if(missing.length) out.push(`${tag}: falta ${missing.join(', ')}`);
+    const seen = {};
+    state.roles.forEach(r=>{
+      const v = s.slots[r.id];
+      if(v){
+        (seen[v] = seen[v] || []).push(r.name);
+        const p = state.team.find(x => x.id === v);
+        if(p && p.avail && p.avail.length && !p.avail.includes(d.getDay()))
+          out.push(`${tag}: ${p.name} no marcó los ${DIAS[d.getDay()]}`);
+      }
+    });
+    Object.entries(seen).forEach(([v, rs]) => { if(rs.length > 1) out.push(`${tag}: ${volName(v)} está en ${rs.length} funciones`); });
+  });
+  $('#reviewBox').innerHTML = out.length
+    ? out.map(t => `<div class="alert">${esc(t)}</div>`).join('')
+    : `<div class="empty" style="padding:8px">Todo cubierto. ${list.length} culto${list.length===1?'':'s'} listo${list.length===1?'':'s'} para enviar.</div>`;
+}
+
+function renderLoad(){
+  const list = monthServices(), c = {};
+  state.team.forEach(v => c[v.id] = 0);
+  list.forEach(s => Object.values(s.slots).forEach(v => { if(v) c[v] = (c[v]||0)+1; }));
+  $('#loadBox').innerHTML = state.team.slice().sort((a,b) => c[b.id]-c[a.id])
+    .map(v => `<div class="item"><div class="grow">${esc(v.name)}</div><div class="count">${c[v.id]}</div></div>`).join('')
+    || `<div class="empty">Aún no hay nadie en el equipo.</div>`;
+}
+
+const initials = n => n.split(/\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase();
+const avatarHTML = (v, cls='') =>
+  `<div class="avatar ${cls}">${v.photo ? `<img src="${v.photo}" alt="">` : esc(initials(v.name || '?'))}</div>`;
+
+function renderTeam(){
+  $('#volList').innerHTML = state.team.map(v=>{
+    const rs = v.roles.map(roleName).filter(Boolean).join(' · ') || 'Sin funciones marcadas';
+    return `<div class="vcard">
+      ${avatarHTML(v)}
+      <div class="grow" style="flex:1;min-width:0">
+        <div class="nm">${esc(v.name)}</div>
+        <div class="sub">${esc(rs)}</div>
+      </div>
+      <button class="btn sm" data-open="${v.id}">Ficha</button>
+      <button class="btn sm ghost danger" data-vdel="${v.id}">Quitar</button>
+    </div>`;
+  }).join('') || `<div class="empty">Añade a la primera persona del equipo.</div>`;
+
+  $('#volList').querySelectorAll('[data-open]').forEach(b => b.onclick = () => openSheet(b.dataset.open));
+  $('#volList').querySelectorAll('[data-vdel]').forEach(b=>{
+    b.onclick = () => {
+      const v = state.team.find(x => x.id === b.dataset.vdel);
+      if(!confirm(`¿Quitar a ${v.name} del equipo y de la escala?`)) return;
+      state.team = state.team.filter(x => x.id !== b.dataset.vdel);
+      state.services.forEach(s => Object.keys(s.slots).forEach(k => { if(s.slots[k] === b.dataset.vdel) s.slots[k] = ''; }));
+      save(); renderAll();
+    };
+  });
+}
+
+function renderRoles(){
+  $('#roleList').innerHTML = state.roles.map((r,i)=>`
+    <div class="item">
+      <input value="${esc(r.name)}" data-rname="${r.id}" style="background:transparent;border:none;padding:0" class="grow">
+      <button class="btn sm ghost" data-up="${i}" ${i===0?'disabled':''}>↑</button>
+      <button class="btn sm ghost" data-down="${i}" ${i===state.roles.length-1?'disabled':''}>↓</button>
+      <button class="btn sm ghost danger" data-rdel="${r.id}">Quitar</button>
+    </div>`).join('') || `<div class="empty">Añade la primera función.</div>`;
+
+  $('#roleList').querySelectorAll('[data-rname]').forEach(i=>{
+    i.onchange = () => { state.roles.find(r => r.id === i.dataset.rname).name = i.value.trim() || 'Función'; save(); renderAll(); };
+  });
+  $('#roleList').querySelectorAll('[data-rdel]').forEach(b=>{
+    b.onclick = () => {
+      state.roles = state.roles.filter(r => r.id !== b.dataset.rdel);
+      state.team.forEach(v => v.roles = v.roles.filter(r => r !== b.dataset.rdel));
+      save(); renderAll();
+    };
+  });
+  const move = (i,j) => { const a = state.roles; [a[i],a[j]] = [a[j],a[i]]; save(); renderAll(); };
+  $('#roleList').querySelectorAll('[data-up]').forEach(b => b.onclick = () => move(+b.dataset.up, +b.dataset.up-1));
+  $('#roleList').querySelectorAll('[data-down]').forEach(b => b.onclick = () => move(+b.dataset.down, +b.dataset.down+1));
+}
+
+function renderLogo(){
+  $('#logoBox').innerHTML = state.logo ? `<img src="${state.logo}" alt="Logo">` : 'Logo';
+  $('#subtitle').textContent = state.subtitle;
+}
+
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+$('#btnAddSvc').onclick = () => {
+  const date = $('#nsDate').value;
+  if(!date) return toast('Elige una fecha');
+  state.services.push({id:uid(), name:$('#nsName').value.trim() || 'Culto', date, time:$('#nsTime').value || '10:00', slots:{}});
+  month = date.slice(0,7); $('#monthPick').value = month;
+  save(); renderAll();
+};
+
+$('#btnGen').onclick = () => {
+  const wd = +$('#genDay').value, name = $('#nsName').value.trim() || 'Culto', time = $('#nsTime').value || '10:00';
+  const [y,m] = month.split('-').map(Number);
+  const d = new Date(y, m-1, 1); let n = 0;
+  while(d.getMonth() === m-1){
+    if(d.getDay() === wd && !state.services.some(s => s.date === iso(d) && s.time === time)){
+      state.services.push({id:uid(), name, date:iso(d), time, slots:{}}); n++;
+    }
+    d.setDate(d.getDate()+1);
+  }
+  save(); renderAll(); toast(n ? `${n} cultos añadidos` : 'Ya estaban creados');
+};
+
+$('#btnAddVol').onclick = () => {
+  const name = $('#newVol').value.trim();
+  if(!name) return toast('Escribe un nombre');
+  const id = uid();
+  state.team.push({id, name, roles:[], phone:'', mail:'', birth:'', since:'', photo:null, avail:[], exp:[], notes:''});
+  $('#newVol').value = '';
+  save(); renderAll(); openSheet(id);
+};
+
+$('#btnAddRole').onclick = () => {
+  const name = $('#newRole').value.trim();
+  if(!name) return toast('Escribe una función');
+  state.roles.push({id:uid(), name}); $('#newRole').value = '';
+  save(); renderAll();
+};
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x === t));
+    ['escala','equipo','funciones'].forEach(k => $('#tab-'+k).classList.toggle('hidden', k !== t.dataset.tab));
+  };
+});
+
+$('#monthPick').onchange = e => { month = e.target.value; renderAll(); };
+
+$('#logoBox').onclick = () => {
+  const i = document.createElement('input');
+  i.type = 'file'; i.accept = 'image/png,image/jpeg';
+  i.onchange = () => {
+    const f = i.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = () => { state.logo = r.result; save(); renderLogo(); toast('Logo actualizado'); };
+    r.readAsDataURL(f);
+  };
+  i.click();
+};
+
+function svcText(s){
+  const d = parse(s.date);
+  let t = `*ESCALA MULTIMEDIA*\n*${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}*\n${s.name}\n\n`;
+  state.roles.forEach(r => { t += `• ${r.name}: ${s.slots[r.id] ? volName(s.slots[r.id]) : '_por confirmar_'}\n`; });
+  return t + `\nGracias por servir 🙌`;
+}
+
+async function copyText(t){
+  try{
+    await navigator.clipboard.writeText(t);
+    toast('Copiado, ya puedes pegarlo');
+  }catch(e){
+    window.prompt('Copia el texto:', t);
+  }
+}
+
+$('#btnWhats').onclick = () => {
+  const list = monthServices();
+  if(!list.length) return toast('No hay cultos este mes');
+  const [y,m] = month.split('-').map(Number);
+  let t = `*ESCALA MULTIMEDIA — ${MESES[m-1].toUpperCase()} ${y}*\n`;
+  list.forEach(s=>{
+    const d = parse(s.date);
+    t += `\n*${d.getDate()}/${m} · ${DIAS[d.getDay()]} · ${s.time}*\n${s.name}\n`;
+    state.roles.forEach(r => { t += `• ${r.name}: ${s.slots[r.id] ? volName(s.slots[r.id]) : '—'}\n`; });
+  });
+  copyText(t);
+};
+
+$('#btnPdf').onclick = () => makePDF(monthServices());
+
+function makePDF(list){
+  if(!list.length) return toast('No hay cultos que exportar');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'mm', format:'a4'});
+  const W = 210, M = 14;
+  const [y, m] = month.split('-').map(Number);
+  const dark = [18,22,29], amber = [200,135,40], grey = [125,135,150], line = [222,226,232];
+
+  const header = () => {
+    doc.setFillColor(...dark); doc.rect(0, 0, W, 32, 'F');
+    let tx = M;
+    if(state.logo){
+      try{ doc.addImage(state.logo, 'PNG', M, 7, 18, 18); tx = M + 24; }catch(e){}
+    }
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(17);
+    doc.text('Escala de multimedia', tx, 15);
+    doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(200,205,215);
+    doc.text(`${MESES[m-1]} ${y} · ${state.subtitle}`, tx, 22);
+    doc.setFillColor(...amber); doc.rect(0, 32, W, 1.2, 'F');
+    return 44;
+  };
+
+  let cy = header();
+  const rowH = 6.4;
+
+  list.forEach(s=>{
+    const d = parse(s.date);
+    const blockH = 15 + state.roles.length * rowH + 7;
+    if(cy + blockH > 280){ doc.addPage(); cy = header(); }
+
+    doc.setFillColor(242,244,247); doc.roundedRect(M, cy, W-2*M, 11, 1.6, 1.6, 'F');
+    doc.setTextColor(...dark); doc.setFont('helvetica','bold'); doc.setFontSize(11.5);
+    doc.text(`${d.getDate()} de ${MESES[d.getMonth()]}`, M+4, cy+7.4);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...grey);
+    doc.text(`${DIAS[d.getDay()]}  ·  ${s.time}  ·  ${s.name}`, M+42, cy+7.4);
+    cy += 15;
+
+    state.roles.forEach((r,i)=>{
+      if(i){ doc.setDrawColor(...line); doc.setLineWidth(.2); doc.line(M+4, cy-3.1, W-M-4, cy-3.1); }
+      doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(...grey);
+      doc.text(r.name, M+4, cy);
+      const v = s.slots[r.id];
+      doc.setFont('helvetica', v ? 'bold' : 'normal');
+      doc.setTextColor(...(v ? dark : [190,80,70]));
+      doc.text(v ? volName(v) : 'por confirmar', M+62, cy);
+      cy += rowH;
+    });
+    cy += 7;
+  });
+
+  const pages = doc.internal.getNumberOfPages();
+  for(let p=1; p<=pages; p++){
+    doc.setPage(p);
+    doc.setFontSize(8.5); doc.setTextColor(...grey); doc.setFont('helvetica','normal');
+    const now = new Date();
+    doc.text(`Actualizado el ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`, M, 289);
+    doc.text(`${p}/${pages}`, W-M, 289, {align:'right'});
+  }
+
+  const single = list.length === 1 ? '-' + list[0].date : '';
+  doc.save(`escala-multimedia-${month}${single}.pdf`);
+}
+
+let openId = null;
+const cur = () => state.team.find(v => v.id === openId);
+
+function openSheet(id){
+  openId = id;
+  const v = cur();
+  if(!v.exp) v.exp = [];
+  if(!v.avail) v.avail = [];
+  $('#fName').value  = v.name || '';
+  $('#fPhone').value = v.phone || '';
+  $('#fMail').value  = v.mail || '';
+  $('#fBirth').value = v.birth || '';
+  $('#fSince').value = v.since || '';
+  $('#fNotes').value = v.notes || '';
+  paintSheet();
+  $('#sheetWrap').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function paintSheet(){
+  const v = cur();
+}
+
+['fName','fPhone','fMail','fBirth','fSince','fNotes'].forEach(id=>{
+  const el = $('#'+id);
+  if(el){
+    el.oninput = () => {
+      const v = cur(); if(!v) return;
+      const key = {fName:'name', fPhone:'phone', fMail:'mail', fBirth:'birth', fSince:'since', fNotes:'notes'}[id];
+      v[key] = el.value;
+      if(key === 'name') paintSheet();
+      save();
+    };
+  }
+});
+
+$('#btnCloud').onclick = () => {
+  $('#cUrl').value = cfg.url; $('#cPin').value = cfg.pin;
+  $('#cloudWrap').classList.remove('hidden');
+};
+const closeCloud = () => $('#cloudWrap').classList.add('hidden');
+$('#cloudWrap').onclick = e => { if(e.target.id === 'cloudWrap') closeCloud(); };
+$('#cSave').onclick = async () => {
+  cfg = {url: $('#cUrl').value.trim(), pin: $('#cPin').value.trim()};
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud();
+  cfg.url ? pull() : pill('Solo este dispositivo');
+};
+$('#cPush').onclick = async () => {
+  cfg = {url: $('#cUrl').value.trim(), pin: $('#cPin').value.trim()};
+  if(!cfg.url) return toast('Falta la dirección');
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud(); await push();
+};
+$('#cOff').onclick = async () => {
+  cfg = {url:'', pin:''};
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud(); pill('Solo este dispositivo');
+};
+
+function toast(msg){
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+
+(async function init(){
+  const c = await lget(K_CFG);
+  if(c){ try{ cfg = JSON.parse(c); }catch(e){} }
+  state = await load();
+  normalizar();
+  $('#monthPick').value = month;
+  $('#nsName').value = 'Culto de domingo';
+  renderAll();
+  if(cfg.url) pull(); else pill('Solo este dispositivo');
+})();
+</script>
+</body>
+</html>
