@@ -31,6 +31,8 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 .card p{margin:0;font-size:14px;color:var(--muted)}
 .btn{background:var(--amber);border:none;color:#1A1204;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:600;transition:all .15s}
 .btn:hover{background:#F0B356}
+.btn-secondary{background:var(--panel-2);border:1px solid var(--line);color:var(--text)}
+.btn-secondary:hover{border-color:var(--amber);color:var(--amber)}
 .content-section{display:none}
 .content-section.active{display:block}
 .form-group{margin-bottom:16px}
@@ -40,7 +42,8 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 .alert{background:rgba(79,178,134,.1);border:1px solid rgba(79,178,134,.3);color:var(--ok);padding:12px 14px;border-radius:6px;margin-bottom:16px;font-size:13px}
 .pin-box{max-width:400px;background:var(--panel-2);border:1px solid var(--line);padding:20px;border-radius:var(--radius);margin-top:20px}
 .pin-error{color:var(--tally);font-size:13px;margin-top:10px;display:none}
-@media (max-width:768px){.navbar{flex-direction:column;align-items:flex-start}.nav-links{margin-left:0;width:100%}}
+.escala-buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+@media (max-width:768px){.navbar{flex-direction:column;align-items:flex-start}.nav-links{margin-left:0;width:100%}.escala-buttons{flex-direction:column}}
 </style>
 </head>
 <body>
@@ -88,14 +91,20 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 <section class="content-section" id="escala">
 <div class="panel">
 <h2>Sistema de Escalas</h2>
-<p>Acceso protegido a la escala de voluntarios del equipo multimedia.</p>
-<div class="pin-box">
-<div class="form-group">
-<label for="pinInput">PIN de acceso:</label>
-<input type="password" id="pinInput" placeholder="Escribe el PIN" onkeypress="if(event.key==='Enter') checkPIN()">
+<p>Accede a la escala de voluntarios del equipo multimedia.</p>
+<div class="escala-buttons">
+<button class="btn" onclick="window.location.href='/escala-lectura/'">👁️ Ver Escala (Lectura)</button>
+<button class="btn btn-secondary" onclick="openPinModal()">🔐 Gestionar Escala (Admin)</button>
 </div>
-<button class="btn" onclick="checkPIN()">Acceder a la Escala</button>
-<div class="pin-error" id="pinError">PIN incorrecto. Intenta de nuevo.</div>
+</div>
+<div class="pin-box hidden" id="pinModal" style="display:none;max-width:400px;margin:20px auto">
+<div class="form-group">
+<label for="pinInput2">PIN de acceso:</label>
+<input type="password" id="pinInput2" placeholder="Escribe el PIN" onkeypress="if(event.key==='Enter') checkPIN2()">
+</div>
+<button class="btn" onclick="checkPIN2()" style="width:100%">Acceder</button>
+<button class="btn btn-secondary" onclick="closePinModal()" style="width:100%;margin-top:8px">Cancelar</button>
+<div class="pin-error" id="pinError2">PIN incorrecto. Intenta de nuevo.</div>
 </div>
 </section>
 
@@ -117,6 +126,7 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 
 <script>
 const CORRECT_PIN = 'iprmultimedia';
+
 function showPanel(panelId){
   const sections=document.querySelectorAll('.content-section');
   sections.forEach(s=>s.classList.remove('active'));
@@ -126,20 +136,35 @@ function showPanel(panelId){
   document.querySelector(`[data-panel="${panelId}"]`).classList.add('active');
   window.location.hash=panelId;
 }
-function checkPIN(){
-  const pinInput = document.getElementById('pinInput').value;
-  const pinError = document.getElementById('pinError');
+
+function openPinModal(){
+  document.getElementById('pinModal').style.display='block';
+  document.getElementById('pinInput2').focus();
+}
+
+function closePinModal(){
+  document.getElementById('pinModal').style.display='none';
+  document.getElementById('pinInput2').value='';
+  document.getElementById('pinError2').style.display='none';
+}
+
+function checkPIN2(){
+  const pinInput = document.getElementById('pinInput2').value;
+  const pinError = document.getElementById('pinError2');
+  
   if(pinInput === CORRECT_PIN){
     window.location.href = '/multimedia/';
   } else {
     pinError.style.display = 'block';
-    document.getElementById('pinInput').value = '';
-    document.getElementById('pinInput').focus();
+    document.getElementById('pinInput2').value = '';
+    document.getElementById('pinInput2').focus();
   }
 }
+
 document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click',()=>showPanel(btn.dataset.panel));
 });
+
 showPanel((location.hash||'#inicio').replace('#',''));
 </script>
 </body>
