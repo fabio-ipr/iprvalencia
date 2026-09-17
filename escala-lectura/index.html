@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ver Escala — IPR Valencia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#12161D;--panel:#1A202A;--panel-2:#212936;--line:#2C3644;--text:#E7ECF3;--muted:#8C97A7;--amber:#E8A33D;--tally:#FF4436;--ok:#4FB286;--radius:10px}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Barlow Condensed','Inter',sans-serif;letter-spacing:.01em}
+.bar{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,#161C25,#12161D);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px}
+.brand h1{font-size:20px;margin:0;font-weight:600}
+.bar-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--amber);border:none;color:#1A1204;padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;transition:all .15s}
+.btn:hover{background:#F0B356}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+.btn-ghost:hover{border-color:var(--amber);color:var(--amber)}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 50px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.daychip{width:54px;text-align:center;border-radius:8px;padding:5px 0;background:var(--panel-2);border:1px solid var(--line)}
+.daychip .d{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:600;line-height:1}
+.daychip .m{font-size:10px;color:var(--muted);text-transform:lowercase}
+.svc{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:14px;overflow:hidden}
+.svc-h{display:flex;gap:14px;align-items:center;padding:13px 15px;background:#1D242F;border-bottom:1px solid var(--line)}
+.svc-t{min-width:0;flex:1}
+.svc-t .name{font-weight:600}
+.svc-t .meta{font-size:13px;color:var(--muted)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1px;background:var(--line)}
+.slot{background:var(--panel);padding:11px 15px;display:flex;align-items:center;gap:10px}
+.slot .rname{font-size:13px;color:var(--muted);width:104px;flex:none}
+.slot-value{flex:1;font-weight:500;color:var(--text)}
+.slot-empty{color:#FFB4AC;font-style:italic}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:var(--muted)}
+input{background:#151B24;border:1px solid var(--line);border-radius:7px;padding:9px 10px;color:var(--text);font-family:inherit}
+.empty{color:var(--muted);font-size:14px;padding:22px 6px;text-align:center}
+.form-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<header class="bar">
+<div class="brand">
+<h1>👁️ Ver Escala</h1>
+</div>
+<div class="bar-right">
+<input type="month" id="monthPick" style="width:auto">
+<button class="btn btn-ghost" onclick="window.location.href='/'">← Volver</button>
+</div>
+</header>
+
+<main class="wrap">
+<div class="panel" style="margin-bottom:20px">
+<h2 style="margin:0;font-size:18px">Selecciona un mes para ver la escala</h2>
+<p style="margin:5px 0 0;font-size:13px;color:var(--muted)">Vista de solo lectura. Para editar la escala, usa el acceso administrativo.</p>
+</div>
+<div id="svcList"></div>
+</main>
+
+<script>
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIAS  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+let state = null;
+let month = new Date().toISOString().slice(0,7);
+
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function demoData(){
+  const V = (id,name,roles,phone,mail,since,avail,exp,notes) =>
+    ({id, name, roles, phone, mail, since, birth:'', photo:null, avail, exp, notes});
+  const roles = [
+    {id:'r1', name:'Dirección de corte'},
+    {id:'r2', name:'PTZ'},
+    {id:'r3', name:'Cámara móvil'},
+    {id:'r4', name:'Streaming (OBS)'},
+    {id:'r5', name:'Holyrics'},
+    {id:'r6', name:'Sonido'},
+    {id:'r7', name:'Fotografía'}
+  ];
+  const team = [
+    V('v1','Marcos Ferreira',['r1','r2','r4'],'+34 611 22 33 44','marcos.f@correo.com','marzo de 2021',[0,3],[],
+      'Conoce bien el ATEM. Puede formar a gente nueva en corte.'),
+    V('v2','Lucía Ramos',['r3','r7'],'+34 622 33 44 55','lucia.ramos@correo.com','enero de 2023',[0],[],
+      'Prefiere cámara móvil en la primera parte del culto.'),
+    V('v3','Iván Delgado',['r5','r4'],'+34 633 44 55 66','ivan.d@correo.com','septiembre de 2024',[0,3],[],
+      ''),
+    V('v4','Nerea Castillo',['r5','r7'],'+34 644 55 66 77','nerea.c@correo.com','mayo de 2025',[0],[],'Nueva en Holyrics, aún acompañada.'),
+    V('v5','Rubén Alcántara',['r6','r4'],'+34 655 66 77 88','ruben.a@correo.com','febrero de 2020',[0,3],[],'Referencia para la X32.'),
+    V('v6','Sara Montoya',['r3','r5'],'+34 666 77 88 99','sara.m@correo.com','octubre de 2023',[3],[],'Solo puede entre semana durante el curso.'),
+    V('v7','Diego Pinheiro',['r1','r2','r6'],'+34 677 88 99 00','diego.p@correo.com','agosto de 2019',[0,3],[],'Segundo director de corte.'),
+    V('v8','Carla Ibáñez',['r7','r3'],'+34 688 99 00 11','carla.i@correo.com','abril de 2022',[0],[],'')
+  ];
+  const today = new Date();
+  const y = today.getFullYear(), m = today.getMonth();
+  const services = [];
+  const d = new Date(y, m, 1);
+  while(d.getMonth() === m){
+    if(d.getDay() === 0){
+      services.push({id:Math.random().toString(36).slice(2,9), name:'Culto de domingo', date:iso(d), time:'10:00', slots:{}});
+    }
+    if(d.getDay() === 3){
+      services.push({id:Math.random().toString(36).slice(2,9), name:'Culto de oración', date:iso(d), time:'20:00', slots:{}});
+    }
+    d.setDate(d.getDate()+1);
+  }
+  const rota = {
+    r1:['v1','v7'], r2:['v7','v1'], r3:['v2','v6','v8'], r4:['v3','v5','v1'],
+    r5:['v4','v6','v3'], r6:['v5','v7'], r7:['v8','v2','v4']
+  };
+  services.forEach((s,i)=>{ roles.forEach(r=>{ const p = rota[r.id]; s.slots[r.id] = p[i % p.length]; }); });
+  return {roles, team, services, logo:null, subtitle:'Equipo de transmisión'};
+}
+
+function renderServices(){
+  const box = document.getElementById('svcList');
+  const list = state.services.filter(s => s.date.startsWith(month)).sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+  
+  if(!list.length){
+    box.innerHTML = `<div class="empty">No hay cultos en ${MESES[Number(month.slice(5,7))-1]}.</div>`;
+    return;
+  }
+  
+  box.innerHTML = list.map(s=>{
+    const d = parse(s.date);
+    const slots = state.roles.map(r=>{
+      const val = s.slots[r.id] || '';
+      const volName = val ? (state.team.find(v => v.id === val) || {}).name || 'Desconocido' : '';
+      return `<div class="slot">
+        <span class="rname">${esc(r.name)}</span>
+        <span class="slot-value ${val?'':'slot-empty'}">${val ? esc(volName) : 'por confirmar'}</span>
+      </div>`;
+    }).join('');
+    return `<article class="svc">
+      <div class="svc-h">
+        <div class="daychip"><div class="d">${d.getDate()}</div><div class="m">${DIAS[d.getDay()].slice(0,3)}</div></div>
+        <div class="svc-t">
+          <div class="name">${esc(s.name)}</div>
+          <div class="meta">${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}</div>
+        </div>
+      </div>
+      <div class="slots">${slots}</div>
+    </article>`;
+  }).join('');
+}
+
+document.getElementById('monthPick').onchange = e => { month = e.target.value; renderServices(); };
+
+function loadData(){
+  try{ 
+    const raw = localStorage.getItem('escala-multimedia');
+    if(raw){ return JSON.parse(raw); }
+  }catch(e){}
+  return demoData();
+}
+
+state = loadData();
+document.getElementById('monthPick').value = month;
+renderServices();
+</script>
+</body>
+</html>
