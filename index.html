@@ -70,15 +70,15 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 <h2>¡Bienvenido! 👋</h2>
 <p>Portal multimedia de IPR Valencia. Gestiona formación, escalas y recursos multimedia.</p>
 <div class="grid">
-<div class="card">
+<div class="card" onclick="switchTab('formacion')">
 <h3>🎓 Formación</h3>
 <p>Accede a módulos de capacitación multimedia.</p>
 </div>
-<div class="card">
+<div class="card" onclick="switchTab('escalas')">
 <h3>📅 Escalas</h3>
 <p>Consulta y gestiona asignaciones de voluntarios.</p>
 </div>
-<div class="card">
+<div class="card" onclick="switchTab('multimedia')">
 <h3>📁 Multimedia</h3>
 <p>Todos los archivos y recursos en un lugar.</p>
 </div>
@@ -147,7 +147,7 @@ function switchTab(tab){
   document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-links button').forEach(el => el.classList.remove('active'));
   document.getElementById(tab).classList.add('active');
-  event.target.classList.add('active');
+  document.querySelector(`.nav-links button:nth-child(${tab === 'inicio' ? 1 : tab === 'formacion' ? 2 : tab === 'escalas' ? 3 : 4})`).classList.add('active');
 }
 
 function requestPin(){
