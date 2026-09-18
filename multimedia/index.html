@@ -178,224 +178,182 @@ textarea{
   padding:9px 10px;width:100%;color:var(--text);font-family:inherit;font-size:15px;resize:vertical;min-height:74px;
 }
 .exp{display:grid;grid-template-columns:1fr 1fr 90px 34px;gap:7px;margin-bottom:7px}
-@media (max-width:560px){.exp{grid-template-columns:1fr 70px 34px}}
-.exp input,.exp button{padding:7px 8px;font-size:12px}
-.exp button{cursor:pointer;background:none;border:1px solid var(--line);border-radius:6px;color:var(--muted)}
-.exp button:hover{color:#FF7C71;border-color:var(--tally)}
+@media (max-width:560px){.exp{grid-template-columns:1fr 1fr;}.exp .x{grid-column:2}}
+.exp .x{background:transparent;border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--muted)}
+.exp .x:hover{border-color:var(--tally);color:#FF7C71}
 </style>
 </head>
 <body>
 
 <header class="bar">
   <div class="brand">
-    <div class="logo" id="logoBtn">📹</div>
+    <div class="logo" id="logoBox" title="Pulsa para subir el logo">Logo</div>
     <div>
       <h1>Escala Multimedia</h1>
-      <p>Gestión de asignaciones y voluntarios</p>
+      <p id="subtitle">Equipo de transmisión</p>
     </div>
   </div>
   <div class="bar-right">
-    <button id="btnCloud" class="btn ghost">☁️ Nube</button>
-    <button id="btnCopy" class="btn ghost">📋 Copiar</button>
-    <button id="btnPdf" class="btn ghost">📄 PDF</button>
-    <button class="btn ghost" onclick="window.location.href='/'">← Volver</button>
+    <span class="pill" id="syncPill">Solo este dispositivo</span>
+    <input type="month" id="monthPick" style="width:auto">
+    <button class="btn" id="btnCloud">Hoja</button>
+    <button class="btn" id="btnWhats">Copiar para WhatsApp</button>
+    <button class="btn primary" id="btnPdf">Descargar PDF</button>
   </div>
 </header>
 
-<main class="wrap">
-  <div class="tabs">
-    <button class="tab" aria-selected="true" data-tab="escala">📅 Escala</button>
-    <button class="tab" data-tab="equipo">👥 Equipo</button>
-    <button class="tab" data-tab="funciones">⚙️ Funciones</button>
-  </div>
+<nav class="tabs" role="tablist">
+  <button class="tab" role="tab" data-tab="escala" aria-selected="true">Escala</button>
+  <button class="tab" role="tab" data-tab="equipo" aria-selected="false">Equipo</button>
+  <button class="tab" role="tab" data-tab="funciones" aria-selected="false">Funciones</button>
+</nav>
 
-  <!-- TAB ESCALA -->
-  <div id="escala" class="tab-pane">
+<main class="wrap">
+
+  <!-- ESCALA -->
+  <section id="tab-escala">
     <div class="cols">
       <div>
-        <div class="panel">
-          <div class="panel-h"><h2>Nuevo culto</h2></div>
+        <div class="panel" style="margin-bottom:16px">
           <div class="panel-b">
             <div class="row">
-              <div class="field fld-name"><label>Nombre</label><input id="nsName"></div>
-              <div class="field"><label>Fecha</label><input type="date" id="nsDate"></div>
-              <div class="field"><label>Hora</label><input type="time" id="nsTime" value="10:00"></div>
-              <button class="btn primary" onclick="addService()">+ Agregar</button>
+              <div class="field fld-name"><label for="nsName">Nombre de la reunión</label><input id="nsName" placeholder="Culto de domingo"></div>
+              <div class="field" style="width:130px"><label for="nsDate">Fecha</label><input type="date" id="nsDate"></div>
+              <div class="field" style="width:100px"><label for="nsTime">Hora</label><input type="time" id="nsTime" value="10:00"></div>
+              <button class="btn" id="btnAddSvc">Añadir</button>
+            </div>
+            <div class="row" style="margin-top:12px">
+              <div class="field" style="width:140px"><label for="genDay">Repetir todos los</label>
+                <select id="genDay">
+                  <option value="0">domingos</option><option value="1">lunes</option><option value="2">martes</option>
+                  <option value="3">miércoles</option><option value="4">jueves</option><option value="5">viernes</option><option value="6">sábados</option>
+                </select>
+              </div>
+              <button class="btn ghost" id="btnGen">Crear todo el mes</button>
+              <span class="hint" style="margin:0 0 9px">Usa el nombre y la hora de arriba.</span>
             </div>
           </div>
         </div>
-
-        <div class="panel">
-          <div class="panel-h">
-            <h2 id="mTitle"></h2>
-            <input type="month" id="monthPick" style="margin-left:auto">
-          </div>
-          <div class="panel-b" id="svcList"></div>
-        </div>
+        <div id="svcList"></div>
       </div>
 
-      <div>
-        <div class="panel">
-          <div class="panel-h"><h2>Este mes</h2></div>
-          <div class="panel-b">
-            <div class="item"><div class="grow"><div class="nm" id="countSvc">0</div><div class="sub">Cultos</div></div><span class="count" id="countSvc">0</span></div>
-            <div class="item"><div class="grow"><div class="nm">Confirmaciones</div><div class="sub">de voluntarios</div></div><span class="count" id="countConf">0</span></div>
-            <p class="hint">Total de asignaciones realizadas este mes.</p>
-          </div>
+      <aside>
+        <div class="panel" style="margin-bottom:16px">
+          <div class="panel-h"><h2>Revisión del mes</h2></div>
+          <div class="panel-b" id="reviewBox"></div>
         </div>
-
         <div class="panel">
-          <div class="panel-h"><h2>Más participados</h2></div>
-          <div class="panel-b" id="topList"></div>
+          <div class="panel-h"><h2>Turnos por persona</h2></div>
+          <div class="panel-b"><div class="list" id="loadBox"></div></div>
         </div>
-      </div>
+      </aside>
     </div>
-  </div>
+  </section>
 
-  <!-- TAB EQUIPO -->
-  <div id="equipo" class="tab-pane hidden">
-    <div class="panel">
-      <div class="panel-h"><h2>Agregar voluntario</h2></div>
+  <!-- EQUIPO -->
+  <section id="tab-equipo" class="hidden">
+    <div class="panel" style="max-width:720px">
+      <div class="panel-h"><h2>Voluntarios</h2></div>
       <div class="panel-b">
-        <div class="row">
-          <div class="field fld-name"><label>Nombre</label><input id="vnName" placeholder="Nombre completo"></div>
-          <div class="field"><label>Teléfono</label><input id="vnPhone" placeholder="+34 6XX XXXXX"></div>
-          <div class="field"><label>Email</label><input id="vnMail" type="email" placeholder="email@correo.com"></div>
-          <button class="btn primary" onclick="addVol()">+ Agregar</button>
+        <div class="row" style="margin-bottom:16px">
+          <div class="field" style="flex:1"><label for="newVol">Nombre</label><input id="newVol" placeholder="Nombre y apellido"></div>
+          <button class="btn" id="btnAddVol">Añadir persona</button>
         </div>
+        <div class="list" id="volList"></div>
+        <p class="hint">Abre la ficha de cada persona para su foto, contacto, funciones y experiencia previa.</p>
       </div>
     </div>
+  </section>
 
-    <div class="cols">
-      <div id="volList"></div>
-      <div>
-        <div class="panel">
-          <div class="panel-h"><h2>Funciones</h2></div>
-          <div class="panel-b chips" id="roleChips"></div>
+  <!-- FICHA -->
+  <div class="overlay hidden" id="sheetWrap">
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Ficha del voluntario">
+      <div class="sheet-h">
+        <div class="avatar big" id="fPhoto" title="Pulsa para subir una foto"></div>
+        <div style="flex:1;min-width:0">
+          <div class="field"><label for="fName">Nombre completo</label><input id="fName"></div>
         </div>
+      </div>
+      <div class="sheet-b">
+        <div class="grid2">
+          <div class="field"><label for="fPhone">Teléfono / WhatsApp</label><input id="fPhone" placeholder="+34 600 00 00 00"></div>
+          <div class="field"><label for="fMail">Correo</label><input id="fMail" placeholder="nombre@correo.com"></div>
+          <div class="field"><label for="fBirth">Cumpleaños</label><input type="date" id="fBirth"></div>
+          <div class="field"><label for="fSince">En el equipo desde</label><input id="fSince" placeholder="marzo de 2024"></div>
+        </div>
+
+        <div class="block">
+          <h3>Funciones que puede cubrir</h3>
+          <div class="chips" id="fRoles"></div>
+        </div>
+
+        <div class="block">
+          <h3>Días que puede servir</h3>
+          <div class="chips" id="fAvail"></div>
+        </div>
+
+        <div class="block">
+          <h3>Experiencia en otros sitios</h3>
+          <div id="fExp"></div>
+          <button class="btn sm ghost" id="fExpAdd">Añadir experiencia</button>
+        </div>
+
+        <div class="block">
+          <h3>Notas</h3>
+          <textarea id="fNotes" placeholder="Formación pendiente, equipo que maneja mejor, disponibilidad especial…"></textarea>
+        </div>
+      </div>
+      <div class="sheet-f">
+        <button class="btn ghost" id="fPdf">Descargar ficha</button>
+        <button class="btn primary" id="fClose">Guardar y cerrar</button>
       </div>
     </div>
   </div>
 
-  <!-- TAB FUNCIONES -->
-  <div id="funciones" class="tab-pane hidden">
-    <div class="panel">
-      <div class="panel-h"><h2>Personalizar funciones</h2></div>
+  <!-- FUNCIONES -->
+  <section id="tab-funciones" class="hidden">
+    <div class="panel" style="max-width:620px">
+      <div class="panel-h"><h2>Funciones del equipo</h2></div>
       <div class="panel-b">
-        <div class="row">
-          <div class="field fld-name"><label>Nueva función</label><input id="nrName" placeholder="ej. Dirección de corte"></div>
-          <button class="btn primary" onclick="addRole()">+ Agregar</button>
+        <div class="row" style="margin-bottom:16px">
+          <div class="field" style="flex:1"><label for="newRole">Función</label><input id="newRole" placeholder="Ej. Cámara móvil"></div>
+          <button class="btn" id="btnAddRole">Añadir función</button>
         </div>
+        <div class="list" id="roleList"></div>
+        <p class="hint">El orden de esta lista es el orden en que salen en el PDF. Usa las flechas para moverlas.</p>
       </div>
     </div>
-    <div id="roleList"></div>
-  </div>
-</main>
-
-<!-- DIALOGO NUBE -->
-<div class="overlay hidden" id="cloudWrap">
-  <div class="sheet">
-    <div class="sheet-h">
-      <h2 style="margin:0">Sincronización en la nube</h2>
-    </div>
-    <div class="sheet-b">
-      <div class="block">
-        <h3>🔗 URL del servidor</h3>
-        <input type="text" id="cUrl" placeholder="https://ejemplo.com/api/escala">
-        <p class="hint">Dirección del servidor donde se guardarán los datos.</p>
-      </div>
-      <div class="block">
-        <h3>🔐 PIN</h3>
+  </section>
+  <!-- CONEXIÓN CON LA HOJA -->
+  <div class="overlay hidden" id="cloudWrap">
+    <div class="sheet" style="max-width:520px" role="dialog" aria-modal="true" aria-label="Conexión con la hoja">
+      <div class="sheet-h"><h2 style="margin:0;font-size:19px">Guardar en Google Sheets</h2></div>
+      <div class="sheet-b">
+        <div class="field"><label for="cUrl">Dirección de la aplicación web</label>
+          <input id="cUrl" placeholder="https://script.google.com/macros/s/…/exec"></div>
         <div class="field"><label for="cPin">PIN</label>
           <input id="cPin" placeholder="El mismo que pusiste en el código"></div>
-        <p class="hint">Todos los que abran la app con esta dirección y este PIN comparten la misma escala. Al conectar se descargará lo que haya en la hoja.</p>
+        <p class="hint" style="margin:0">Todos los que abran la app con esta dirección y este PIN comparten la misma escala. Al conectar se descargará lo que haya en la hoja.</p>
+      </div>
+      <div class="sheet-f">
+        <button class="btn ghost" id="cOff">Desconectar</button>
+        <button class="btn ghost" id="cPush">Subir lo de aquí</button>
+        <button class="btn primary" id="cSave">Conectar y descargar</button>
       </div>
     </div>
-    <div class="sheet-f">
-      <button class="btn ghost" onclick="closeCloud = () => $('#cloudWrap').classList.add('hidden'); closeCloud();">Cancelar</button>
-      <button class="btn primary" id="cSave">Guardar cambios</button>
-      <button class="btn primary" id="cPush">Subir ahora</button>
-      <button class="btn" id="cOff">Solo este dispositivo</button>
-    </div>
   </div>
-</div>
 
-<!-- DIÁLOGO VOLUNTARIO -->
-<div class="overlay hidden" id="volWrap">
-  <div class="sheet">
-    <div class="sheet-h">
-      <div class="avatar big" id="fAvatar">👤</div>
-      <div style="flex:1">
-        <h2 style="margin:0" id="fName"></h2>
-        <p style="margin:6px 0 0;color:var(--muted);font-size:13px" id="fRole"></p>
-      </div>
-      <button class="btn ghost" style="width:auto" onclick="document.getElementById('volWrap').classList.add('hidden')">✕</button>
-    </div>
-    <div class="sheet-b">
-      <div class="block">
-        <h3>Contacto</h3>
-        <div class="grid2">
-          <div class="field"><label>Teléfono</label><input id="fPhone"></div>
-          <div class="field"><label>Email</label><input id="fMail"></div>
-          <div class="field"><label>Cumpleaños</label><input type="date" id="fBirth"></div>
-          <div class="field"><label>En el equipo desde</label><input id="fSince"></div>
-        </div>
-      </div>
-      <div class="block">
-        <h3>Funciones</h3>
-        <div id="fRoles"></div>
-      </div>
-      <div class="block">
-        <h3>Disponibilidad</h3>
-        <div id="fAvail"></div>
-      </div>
-      <div class="block">
-        <h3>Experiencia en otros sitios</h3>
-        <div id="fExp"></div>
-        <button class="btn sm" onclick="addExp()">+ Agregar</button>
-      </div>
-      <div class="block">
-        <h3>Notas</h3>
-        <textarea id="fNotes" placeholder="Observaciones sobre este voluntario..."></textarea>
-      </div>
-    </div>
-    <div class="sheet-f">
-      <button class="btn" id="fPdf">📄 Descargar ficha</button>
-      <button class="btn primary" id="fSave">Guardar</button>
-      <button class="btn danger" id="fDel">Eliminar</button>
-    </div>
-  </div>
-</div>
+</main>
 
 <script>
-const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => document.querySelectorAll(sel);
-
+/* ============================================================
+   Estado
+   ============================================================ */
+const uid = () => Math.random().toString(36).slice(2,9);
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const DIAS  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 
-let state = null;
-let month = new Date().toISOString().slice(0,7);
-let cur_vol = null;
-let cfg = {url:'', pin:''};
-
-const K_STATE = 'escala-multimedia';
-const K_CFG = 'escala-config';
-
-// UTILIDADES
-const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => document.querySelectorAll(sel);
-const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
-const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-
-// localStorage con soporte a async
-const lget = async (k) => localStorage.getItem(k);
-const lset = async (k, v) => { localStorage.setItem(k, v); return true; };
-
-function initState(){
-  const V = (id,name,roles,phone,mail,since,avail,exp,notes) =>
-    ({id, name, roles, phone, mail, since, birth:'', photo:null, avail, exp, notes});
+function demoData(){
   const roles = [
     {id:'r1', name:'Dirección de corte'},
     {id:'r2', name:'PTZ'},
@@ -405,15 +363,29 @@ function initState(){
     {id:'r6', name:'Sonido'},
     {id:'r7', name:'Fotografía'}
   ];
+  const V = (id,name,roles,phone,mail,since,avail,exp,notes) =>
+    ({id, name, roles, phone, mail, since, birth:'', photo:null, avail, exp, notes});
   const team = [
-    V('v1','Marcos Ferreira',['r1','r2','r4'],'+34 611 22 33 44','marcos.f@correo.com','marzo de 2021',[0,3],[],'Conoce bien el ATEM. Puede formar a gente nueva en corte.'),
-    V('v2','Lucía Ramos',['r3','r7'],'+34 622 33 44 55','lucia.ramos@correo.com','enero de 2023',[0],[],'Prefiere cámara móvil en la primera parte del culto.'),
-    V('v3','Iván Delgado',['r5','r4'],'+34 633 44 55 66','ivan.d@correo.com','septiembre de 2024',[0,3],[],null),
-    V('v4','Nerea Castillo',['r5','r7'],'+34 644 55 66 77','nerea.c@correo.com','mayo de 2025',[0],[],'Nueva en Holyrics, aún acompañada.'),
-    V('v5','Rubén Alcántara',['r6','r4'],'+34 655 66 77 88','ruben.a@correo.com','febrero de 2020',[0,3],[],'Referencia para la X32.'),
-    V('v6','Sara Montoya',['r3','r5'],'+34 666 77 88 99','sara.m@correo.com','octubre de 2023',[3],[],'Solo puede entre semana durante el curso.'),
-    V('v7','Diego Pinheiro',['r1','r2','r6'],'+34 677 88 99 00','diego.p@correo.com','agosto de 2019',[0,3],[],'Segundo director de corte.'),
-    V('v8','Carla Ibáñez',['r7','r3'],'+34 688 99 00 11','carla.i@correo.com','abril de 2022',[0],[],'')
+    V('v1','Marcos Ferreira',['r1','r2','r4'],'+34 611 22 33 44','marcos.f@correo.com','marzo de 2021',[0,3],
+      [{place:'Iglesia Central de Vigo',role:'Dirección de corte',time:'3 años'},{place:'Productora Vía Norte',role:'Cámara de eventos',time:'1 año'}],
+      'Conoce bien el ATEM. Puede formar a gente nueva en corte.'),
+    V('v2','Lucía Ramos',['r3','r7'],'+34 622 33 44 55','lucia.ramos@correo.com','enero de 2023',[0],
+      [{place:'Estudio Luz Marina',role:'Fotografía de eventos',time:'2 años'}],
+      'Prefiere cámara móvil en la primera parte del culto.'),
+    V('v3','Iván Delgado',['r5','r4'],'+34 633 44 55 66','ivan.d@correo.com','septiembre de 2024',[0,3],
+      [{place:'Campamento juvenil Betel',role:'Proyección y letras',time:'2 veranos'}], ''),
+    V('v4','Nerea Castillo',['r5','r7'],'+34 644 55 66 77','nerea.c@correo.com','mayo de 2025',[0],
+      [], 'Nueva en Holyrics, aún acompañada.'),
+    V('v5','Rubén Alcántara',['r6','r4'],'+34 655 66 77 88','ruben.a@correo.com','febrero de 2020',[0,3],
+      [{place:'Sala Arenal',role:'Técnico de sonido en directo',time:'5 años'}],
+      'Referencia para la X32.'),
+    V('v6','Sara Montoya',['r3','r5'],'+34 666 77 88 99','sara.m@correo.com','octubre de 2023',[3],
+      [], 'Solo puede entre semana durante el curso.'),
+    V('v7','Diego Pinheiro',['r1','r2','r6'],'+34 677 88 99 00','diego.p@correo.com','agosto de 2019',[0,3],
+      [{place:'Igreja Nova Vida, Lisboa',role:'Dirección de transmisión',time:'4 años'}],
+      'Segundo director de corte.'),
+    V('v8','Carla Ibáñez',['r7','r3'],'+34 688 99 00 11','carla.i@correo.com','abril de 2022',[0],
+      [{place:'Revista local Enfoque',role:'Reportaje fotográfico',time:'2 años'}], '')
   ];
   const today = new Date();
   const y = today.getFullYear(), m = today.getMonth();
@@ -421,13 +393,14 @@ function initState(){
   const d = new Date(y, m, 1);
   while(d.getMonth() === m){
     if(d.getDay() === 0){
-      services.push({id:Math.random().toString(36).slice(2,9), name:'Culto de domingo', date:iso(d), time:'10:00', slots:{}});
+      services.push({id:uid(), name:'Culto de domingo', date:iso(d), time:'10:00', slots:{}});
     }
     if(d.getDay() === 3){
-      services.push({id:Math.random().toString(36).slice(2,9), name:'Culto de oración', date:iso(d), time:'20:00', slots:{}});
+      services.push({id:uid(), name:'Culto de oración', date:iso(d), time:'20:00', slots:{}});
     }
     d.setDate(d.getDate()+1);
   }
+  // reparto de ejemplo
   const rota = {
     r1:['v1','v7'], r2:['v7','v1'], r3:['v2','v6','v8'], r4:['v3','v5','v1'],
     r5:['v4','v6','v3'], r6:['v5','v7'], r7:['v8','v2','v4']
@@ -436,322 +409,439 @@ function initState(){
   return {roles, team, services, logo:null, subtitle:'Equipo de transmisión'};
 }
 
-async function load(){
-  try{
-    const raw = await lget(K_STATE);
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
-  return initState();
+let state = null;
+let month = new Date().toISOString().slice(0,7);
+
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const $ = s => document.querySelector(s);
+
+/* ---------- guardado: este dispositivo + hoja de cálculo ---------- */
+const K_DATOS = 'escala-multimedia', K_CFG = 'escala-multimedia-cfg';
+let cfg = {url:'', pin:''};
+
+async function lget(k){
+  try{ if(window.storage){ const r = await window.storage.get(k); if(r && r.value) return r.value; } }catch(e){}
+  try{ return localStorage.getItem(k); }catch(e){}
+  return null;
+}
+async function lset(k, v){
+  try{ if(window.storage) await window.storage.set(k, v); }catch(e){}
+  try{ localStorage.setItem(k, v); }catch(e){}
 }
 
-async function save(){
-  await lset(K_STATE, JSON.stringify(state));
+function pill(txt, cls){
+  const p = document.getElementById('syncPill');
+  p.textContent = txt;
+  p.className = 'pill' + (cls ? ' ' + cls : '');
+}
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    await lset(K_DATOS, JSON.stringify(state));
+    if(cfg.url) push();
+    else pill('Solo este dispositivo');
+  }, 700);
+}
+
+async function push(){
+  pill('Guardando…', 'busy');
+  try{
+    const r = await fetch(cfg.url, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({pin: cfg.pin, data: state})
+    });
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || 'Error de la hoja');
+    pill('Guardado en la hoja', 'ok');
+  }catch(e){
+    pill('Sin conexión con la hoja', 'warn');
+  }
+}
+
+async function pull(){
+  if(!cfg.url) return;
+  pill('Descargando…', 'busy');
+  try{
+    const r = await fetch(cfg.url + '?pin=' + encodeURIComponent(cfg.pin) + '&t=' + Date.now());
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || 'Error de la hoja');
+    if(j.data && j.data.roles){
+      state = j.data; normalizar();
+      await lset(K_DATOS, JSON.stringify(state));
+      renderAll(); pill('Al día con la hoja', 'ok');
+    }else{
+      pill('La hoja estaba vacía', 'busy');
+      await push();
+    }
+  }catch(e){
+    pill('Sin conexión con la hoja', 'warn');
+    toast('No se pudo leer la hoja: ' + e.message);
+  }
 }
 
 function normalizar(){
-  // Asegurar que todos los servicios tienen slots
-  state.services.forEach(s => {
-    if(!s.slots) s.slots = {};
-  });
-  // Asegurar que todo voluntario tiene los arrays necesarios
-  state.team.forEach(v => {
-    if(!v.roles) v.roles = [];
-    if(!v.avail) v.avail = [];
-    if(!v.exp) v.exp = [];
+  if(!state.subtitle) state.subtitle = 'Equipo de transmisión';
+  state.roles = state.roles || []; state.team = state.team || []; state.services = state.services || [];
+  state.team.forEach(v=>{
+    v.roles = v.roles || []; v.exp = v.exp || []; v.avail = v.avail || [];
+    ['phone','mail','birth','since','notes'].forEach(k => { if(v[k] == null) v[k] = ''; });
+    if(v.photo === undefined) v.photo = null;
   });
 }
 
-function switchTab(tabName){
-  $$('.tab').forEach(t => t.removeAttribute('aria-selected'));
-  $$('.tab-pane').forEach(p => p.classList.add('hidden'));
-  event.target.setAttribute('aria-selected', 'true');
-  $(`#${tabName}`).classList.remove('hidden');
-  renderAll();
+async function load(){
+  const raw = await lget(K_DATOS);
+  if(raw){ try{ return JSON.parse(raw); }catch(e){} }
+  return demoData();
 }
 
-// TABS
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', function(){
-    const tabName = this.getAttribute('data-tab');
-    document.querySelectorAll('.tab').forEach(t => t.removeAttribute('aria-selected'));
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
-    this.setAttribute('aria-selected', 'true');
-    document.getElementById(tabName).classList.remove('hidden');
-    renderAll();
-  });
-});
+/* ============================================================
+   Render
+   ============================================================ */
+const monthServices = () =>
+  state.services.filter(s => s.date.startsWith(month))
+                .sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
 
-// ===== SERVICIOS =====
-function addService(){
-  const name = $('#nsName').value.trim();
-  const date = $('#nsDate').value;
-  const time = $('#nsTime').value;
-  if(!name || !date) return toast('Completa los datos');
-  state.services.push({id:Math.random().toString(36).slice(2,9), name, date, time, slots:{}});
-  save();
-  $('#nsName').value = 'Culto de domingo';
-  $('#nsDate').value = '';
-  $('#nsTime').value = '10:00';
-  renderServices();
-}
+const volName = id => (state.team.find(v => v.id === id) || {}).name || '';
+const roleName = id => (state.roles.find(r => r.id === id) || {}).name || '';
 
-function monthServices(){
-  return state.services.filter(s => s.date.startsWith(month)).sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
-}
+function renderAll(){ renderServices(); renderReview(); renderLoad(); renderTeam(); renderRoles(); renderLogo(); }
 
 function renderServices(){
-  const list = monthServices();
-  $('#mTitle').textContent = month ? MESES[Number(month.split('-')[1])-1] : 'Mes';
-  if(!list.length){ $('#svcList').innerHTML = '<div class="empty">No hay cultos</div>'; return; }
-
-  let html = '';
-  list.forEach(s => {
+  const box = $('#svcList'), list = monthServices();
+  if(!list.length){
+    box.innerHTML = `<div class="panel"><div class="empty">No hay cultos en ${MESES[Number(month.slice(5,7))-1]}.<br>Añade uno arriba o crea el mes completo.</div></div>`;
+    return;
+  }
+  box.innerHTML = list.map(s=>{
     const d = parse(s.date);
-    const slots = state.roles.map(r => {
-      const vid = s.slots[r.id] || '';
-      const vol = vid ? state.team.find(v => v.id === vid) : null;
-      const opts = state.team.filter(v => v.roles.includes(r.id)).map(v => `<option value="${v.id}" ${vid === v.id ? 'selected' : ''}>${v.name}</option>`).join('');
-      const gap = vid ? '' : ' gap';
-      return `<div class="slot${gap}">
+    const slots = state.roles.map(r=>{
+      const val = s.slots[r.id] || '';
+      const opts = state.team.filter(v => v.roles.includes(r.id))
+        .map(v => `<option value="${v.id}" ${val===v.id?'selected':''}>${esc(v.name)}</option>`).join('');
+      return `<div class="slot ${val?'':'gap'}">
         <span class="dot"></span>
         <span class="rname">${esc(r.name)}</span>
-        <select onchange="setSlot('${s.id}','${r.id}',this.value)">
-          <option value="">-- Asignar --</option>
-          ${opts}
-        </select>
-      </div>`;
+        <select data-svc="${s.id}" data-role="${r.id}">
+          <option value="">— sin asignar —</option>${opts}
+        </select></div>`;
     }).join('');
-    html += `<div class="svc">
+    return `<article class="svc">
       <div class="svc-h">
         <div class="daychip"><div class="d">${d.getDate()}</div><div class="m">${DIAS[d.getDay()].slice(0,3)}</div></div>
         <div class="svc-t">
           <div class="name">${esc(s.name)}</div>
-          <div class="meta">${DIAS[d.getDay()]} · ${s.time}</div>
+          <div class="meta">${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}</div>
         </div>
         <div class="svc-acts">
-          <button class="btn sm" onclick="delService('${s.id}')">✕</button>
+          <button class="btn sm ghost" data-wa1="${s.id}">WhatsApp</button>
+          <button class="btn sm ghost" data-pdf1="${s.id}">PDF</button>
+          <button class="btn sm ghost danger" data-del="${s.id}">Quitar</button>
         </div>
       </div>
       <div class="slots">${slots}</div>
-    </div>`;
-  });
-  $('#svcList').innerHTML = html;
-  updateStats();
-}
-
-function setSlot(svcId, roleId, volId){
-  const svc = state.services.find(s => s.id === svcId);
-  if(svc) svc.slots[roleId] = volId;
-  save();
-  renderServices();
-}
-
-function delService(id){
-  if(confirm('¿Eliminar este culto?')){
-    state.services = state.services.filter(s => s.id !== id);
-    save();
-    renderServices();
-  }
-}
-
-// ===== VOLUNTARIOS =====
-function addVol(){
-  const name = $('#vnName').value.trim();
-  if(!name) return toast('Completa el nombre');
-  state.team.push({id:Math.random().toString(36).slice(2,9), name, phone:'', mail:'', roles:[], birth:'', photo:null, avail:[], exp:[], notes:''});
-  save();
-  $('#vnName').value = '';
-  $('#vnPhone').value = '';
-  $('#vnMail').value = '';
-  renderVols();
-}
-
-function renderVols(){
-  const html = state.team.map(v => {
-    const roles = v.roles.map(rid => state.roles.find(r => r.id === rid)?.name || '').filter(Boolean).join(', ');
-    return `<div class="vcard" onclick="editVol('${v.id}')">
-      <div class="avatar">${v.photo ? '📷' : '👤'}</div>
-      <div style="flex:1">
-        <div class="nm">${esc(v.name)}</div>
-        <div class="sub">${roles || 'Sin funciones'}</div>
-      </div>
-    </div>`;
+    </article>`;
   }).join('');
-  $('#volList').innerHTML = html || '<div class="empty">Sin voluntarios</div>';
-}
 
-function editVol(id){
-  cur_vol = state.team.find(v => v.id === id);
-  if(!cur_vol) return;
-
-  $('#fName').textContent = cur_vol.name;
-  $('#fPhone').value = cur_vol.phone;
-  $('#fMail').value = cur_vol.mail;
-  $('#fBirth').value = cur_vol.birth;
-  $('#fSince').value = cur_vol.since;
-  $('#fNotes').value = cur_vol.notes;
-
-  let roles = '<div class="chips">';
-  state.roles.forEach(r => {
-    const sel = cur_vol.roles.includes(r.id);
-    roles += `<button class="chip" aria-pressed="${sel}" onclick="toggleVolRole('${r.id}')">${esc(r.name)}</button>`;
+  box.querySelectorAll('select[data-svc]').forEach(sel=>{
+    sel.onchange = () => {
+      const s = state.services.find(x => x.id === sel.dataset.svc);
+      s.slots[sel.dataset.role] = sel.value;
+      save(); renderServices(); renderReview(); renderLoad();
+    };
   });
-  roles += '</div>';
-  $('#fRoles').innerHTML = roles;
-
-  let avail = '<div class="chips">';
-  ['Domingos','Miércoles'].forEach((name, i) => {
-    const sel = cur_vol.avail.includes(i);
-    avail += `<button class="chip" aria-pressed="${sel}" onclick="toggleVolAvail(${i})">${name}</button>`;
+  box.querySelectorAll('[data-del]').forEach(b=>{
+    b.onclick = () => { state.services = state.services.filter(s => s.id !== b.dataset.del); save(); renderAll(); };
   });
-  avail += '</div>';
-  $('#fAvail').innerHTML = avail;
-
-  let exp = '';
-  if(cur_vol.exp && cur_vol.exp.length){
-    cur_vol.exp.forEach((e, i) => {
-      exp += `<div class="exp">
-        <input value="${esc(e.place || '')}" onchange="cur_vol.exp[${i}].place=this.value">
-        <input value="${esc(e.role || '')}" onchange="cur_vol.exp[${i}].role=this.value">
-        <input value="${esc(e.time || '')}" onchange="cur_vol.exp[${i}].time=this.value">
-        <button onclick="cur_vol.exp.splice(${i},1);editVol('${id}')">✕</button>
-      </div>`;
-    });
-  }
-  $('#fExp').innerHTML = exp;
-
-  $('#volWrap').classList.remove('hidden');
-}
-
-function cur(){ return cur_vol; }
-function toggleVolRole(rid){
-  const idx = cur_vol.roles.indexOf(rid);
-  if(idx > -1) cur_vol.roles.splice(idx, 1);
-  else cur_vol.roles.push(rid);
-  editVol(cur_vol.id);
-}
-
-function toggleVolAvail(day){
-  const idx = cur_vol.avail.indexOf(day);
-  if(idx > -1) cur_vol.avail.splice(idx, 1);
-  else cur_vol.avail.push(day);
-  editVol(cur_vol.id);
-}
-
-function addExp(){
-  if(!cur_vol.exp) cur_vol.exp = [];
-  cur_vol.exp.push({place:'', role:'', time:''});
-  editVol(cur_vol.id);
-}
-
-$('#fSave').onclick = async () => {
-  cur_vol.phone = $('#fPhone').value;
-  cur_vol.mail = $('#fMail').value;
-  cur_vol.birth = $('#fBirth').value;
-  cur_vol.since = $('#fSince').value;
-  cur_vol.notes = $('#fNotes').value;
-  await save();
-  $('#volWrap').classList.add('hidden');
-  renderVols();
-};
-
-$('#fDel').onclick = () => {
-  if(confirm('¿Eliminar a ' + cur_vol.name + '?')){
-    state.team = state.team.filter(v => v.id !== cur_vol.id);
-    save();
-    $('#volWrap').classList.add('hidden');
-    renderVols();
-  }
-};
-
-// ===== FUNCIONES =====
-function addRole(){
-  const name = $('#nrName').value.trim();
-  if(!name) return toast('Completa el nombre');
-  state.roles.push({id:'r'+Math.random().toString(36).slice(2,9), name});
-  save();
-  $('#nrName').value = '';
-  renderRoles();
-}
-
-function renderRoles(){
-  const html = state.roles.map(r => `<div class="panel" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <span>${esc(r.name)}</span>
-    <button class="btn sm danger" onclick="delRole('${r.id}')">✕</button>
-  </div>`).join('');
-  $('#roleList').innerHTML = html || '<div class="empty">Sin funciones</div>';
-  renderRoleChips();
-}
-
-function renderRoleChips(){
-  const html = state.roles.map(r => `<span class="chip">${esc(r.name)}</span>`).join('');
-  $('#roleChips').innerHTML = html;
-}
-
-function delRole(id){
-  if(confirm('¿Eliminar esta función?')){
-    state.roles = state.roles.filter(r => r.id !== id);
-    save();
-    renderRoles();
-  }
-}
-
-// ===== ESTADÍSTICAS =====
-function updateStats(){
-  const list = monthServices();
-  $('#countSvc').textContent = list.length;
-  let conf = 0;
-  list.forEach(s => {
-    state.roles.forEach(r => { if(s.slots[r.id]) conf++; });
+  box.querySelectorAll('[data-pdf1]').forEach(b=>{
+    b.onclick = () => makePDF(state.services.filter(s => s.id === b.dataset.pdf1));
   });
-  $('#countConf').textContent = conf;
-
-  const ranking = {};
-  state.team.forEach(v => ranking[v.id] = {name:v.name, count:0});
-  list.forEach(s => {
-    state.roles.forEach(r => { if(s.slots[r.id]) ranking[s.slots[r.id]].count++; });
+  box.querySelectorAll('[data-wa1]').forEach(b=>{
+    b.onclick = () => copyText(svcText(state.services.find(s => s.id === b.dataset.wa1)));
   });
-  const top = Object.values(ranking).sort((a,b) => b.count - a.count).slice(0,5);
-  const html = top.map(t => `<div class="item"><div class="grow"><div class="nm">${esc(t.name)}</div></div><span class="count">${t.count}</span></div>`).join('');
-  $('#topList').innerHTML = html || '<div class="empty">Sin datos</div>';
 }
 
-// ===== UTILIDADES =====
-function volName(vid){
-  const v = state.team.find(v => v.id === vid);
-  return v ? v.name : '?';
-}
-
-function roleName(rid){
-  const r = state.roles.find(r => r.id === rid);
-  return r ? r.name : '';
-}
-
-function copyText(txt){
-  navigator.clipboard.writeText(txt).then(() => toast('✅ Copiado')).catch(() => toast('Error al copiar'));
-}
-
-function pill(msg){
-  const el = document.createElement('div');
-  el.className = 'pill busy';
-  el.textContent = msg;
-  const p = document.querySelector('.panel-h') || document.querySelector('.bar-right');
-  if(p) p.appendChild(el);
-  setTimeout(() => el.remove(), 3000);
-}
-
-/* ---------- Copiar para WhatsApp ---------- */
-$('#btnCopy').onclick = () => {
-  const list = monthServices();
-  let t = '📅 *ESCALA MULTIMEDIA* 📅\n\n';
+function renderReview(){
+  const list = monthServices(), out = [];
   list.forEach(s=>{
-    const d = parse(s.date);
-    t += `📍 *${s.name}*\n${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}\n\n`;
+    const d = parse(s.date), tag = `${d.getDate()} ${MESES[d.getMonth()].slice(0,3)}`;
+    const missing = state.roles.filter(r => !s.slots[r.id]).map(r => r.name);
+    if(missing.length) out.push(`${tag}: falta ${missing.join(', ')}`);
+    const seen = {};
     state.roles.forEach(r=>{
       const v = s.slots[r.id];
-      t += `  • ${r.name}: ${v ? volName(v) : 'por confirmar'}\n`;
+      if(v){
+        (seen[v] = seen[v] || []).push(r.name);
+        const p = state.team.find(x => x.id === v);
+        if(p && p.avail && p.avail.length && !p.avail.includes(d.getDay()))
+          out.push(`${tag}: ${p.name} no marcó los ${DIAS[d.getDay()]}`);
+      }
     });
-    t += '\n';
+    Object.entries(seen).forEach(([v, rs]) => { if(rs.length > 1) out.push(`${tag}: ${volName(v)} está en ${rs.length} funciones`); });
+  });
+  $('#reviewBox').innerHTML = out.length
+    ? out.map(t => `<div class="alert">${esc(t)}</div>`).join('')
+    : `<div class="empty" style="padding:8px">Todo cubierto. ${list.length} culto${list.length===1?'':'s'} listo${list.length===1?'':'s'} para enviar.</div>`;
+}
+
+function renderLoad(){
+  const list = monthServices(), c = {};
+  state.team.forEach(v => c[v.id] = 0);
+  list.forEach(s => Object.values(s.slots).forEach(v => { if(v) c[v] = (c[v]||0)+1; }));
+  $('#loadBox').innerHTML = state.team.slice().sort((a,b) => c[b.id]-c[a.id])
+    .map(v => `<div class="item"><div class="grow">${esc(v.name)}</div><div class="count">${c[v.id]}</div></div>`).join('')
+    || `<div class="empty">Aún no hay nadie en el equipo.</div>`;
+}
+
+const initials = n => n.split(/\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase();
+const avatarHTML = (v, cls='') =>
+  `<div class="avatar ${cls}">${v.photo ? `<img src="${v.photo}" alt="">` : esc(initials(v.name || '?'))}</div>`;
+
+function renderTeam(){
+  $('#volList').innerHTML = state.team.map(v=>{
+    const rs = v.roles.map(roleName).filter(Boolean).join(' · ') || 'Sin funciones marcadas';
+    return `<div class="vcard">
+      ${avatarHTML(v)}
+      <div class="grow" style="flex:1;min-width:0">
+        <div class="nm">${esc(v.name)}</div>
+        <div class="sub">${esc(rs)}</div>
+      </div>
+      <button class="btn sm" data-open="${v.id}">Ficha</button>
+      <button class="btn sm ghost danger" data-vdel="${v.id}">Quitar</button>
+    </div>`;
+  }).join('') || `<div class="empty">Añade a la primera persona del equipo.</div>`;
+
+  $('#volList').querySelectorAll('[data-open]').forEach(b => b.onclick = () => openSheet(b.dataset.open));
+  $('#volList').querySelectorAll('[data-vdel]').forEach(b=>{
+    b.onclick = () => {
+      const v = state.team.find(x => x.id === b.dataset.vdel);
+      if(!confirm(`¿Quitar a ${v.name} del equipo y de la escala?`)) return;
+      state.team = state.team.filter(x => x.id !== b.dataset.vdel);
+      state.services.forEach(s => Object.keys(s.slots).forEach(k => { if(s.slots[k] === b.dataset.vdel) s.slots[k] = ''; }));
+      save(); renderAll();
+    };
+  });
+}
+
+/* ---------- ficha ---------- */
+let openId = null;
+const cur = () => state.team.find(v => v.id === openId);
+
+function openSheet(id){
+  openId = id;
+  const v = cur();
+  if(!v.exp) v.exp = [];
+  if(!v.avail) v.avail = [];
+  $('#fName').value  = v.name || '';
+  $('#fPhone').value = v.phone || '';
+  $('#fMail').value  = v.mail || '';
+  $('#fBirth').value = v.birth || '';
+  $('#fSince').value = v.since || '';
+  $('#fNotes').value = v.notes || '';
+  paintSheet();
+  $('#sheetWrap').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function paintSheet(){
+  const v = cur();
+  $('#fPhoto').innerHTML = v.photo ? `<img src="${v.photo}" alt="">` : esc(initials(v.name || '?'));
+  $('#fRoles').innerHTML = state.roles.map(r =>
+    `<button class="chip" data-fr="${r.id}" aria-pressed="${v.roles.includes(r.id)}">${esc(r.name)}</button>`).join('')
+    || '<span class="hint">Crea funciones en la pestaña Funciones.</span>';
+  $('#fRoles').querySelectorAll('[data-fr]').forEach(b => b.onclick = () => {
+    const r = b.dataset.fr;
+    v.roles = v.roles.includes(r) ? v.roles.filter(x => x !== r) : [...v.roles, r];
+    save(); paintSheet(); renderServices();
+  });
+
+  $('#fAvail').innerHTML = DIAS.map((d,i) =>
+    `<button class="chip" data-fa="${i}" aria-pressed="${v.avail.includes(i)}">${d}</button>`).join('');
+  $('#fAvail').querySelectorAll('[data-fa]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.fa;
+    v.avail = v.avail.includes(i) ? v.avail.filter(x => x !== i) : [...v.avail, i];
+    save(); paintSheet(); renderReview();
+  });
+
+  $('#fExp').innerHTML = v.exp.map((e,i)=>`
+    <div class="exp">
+      <input value="${esc(e.place||'')}" data-ep="${i}" placeholder="Iglesia, estudio, evento…">
+      <input value="${esc(e.role||'')}"  data-er="${i}" placeholder="Qué hacía">
+      <input value="${esc(e.time||'')}"  data-et="${i}" placeholder="Tiempo">
+      <button class="x" data-ex="${i}" aria-label="Quitar">×</button>
+    </div>`).join('') || `<p class="hint" style="margin:0 0 9px">Sin experiencia registrada todavía.</p>`;
+
+  [['ep','place'],['er','role'],['et','time']].forEach(([attr,key])=>{
+    $('#fExp').querySelectorAll('[data-'+attr+']').forEach(inp=>{
+      inp.onchange = () => { v.exp[+inp.dataset[attr]][key] = inp.value; save(); };
+    });
+  });
+  $('#fExp').querySelectorAll('[data-ex]').forEach(b => b.onclick = () => { v.exp.splice(+b.dataset.ex, 1); save(); paintSheet(); });
+}
+
+['fName','fPhone','fMail','fBirth','fSince','fNotes'].forEach(id=>{
+  $('#'+id).oninput = () => {
+    const v = cur(); if(!v) return;
+    const key = {fName:'name', fPhone:'phone', fMail:'mail', fBirth:'birth', fSince:'since', fNotes:'notes'}[id];
+    v[key] = $('#'+id).value;
+    if(key === 'name') paintSheet();
+    save();
+  };
+});
+
+$('#fExpAdd').onclick = () => { cur().exp.push({place:'', role:'', time:''}); save(); paintSheet(); };
+$('#fClose').onclick = () => {
+  const v = cur(); if(v && !v.name.trim()) v.name = 'Sin nombre';
+  $('#sheetWrap').classList.add('hidden'); document.body.style.overflow = '';
+  openId = null; save(); renderAll();
+};
+$('#sheetWrap').onclick = e => { if(e.target.id === 'sheetWrap') $('#fClose').click(); };
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && openId) $('#fClose').click(); });
+
+/* foto: se reduce a 320 px antes de guardarla */
+$('#fPhoto').onclick = () => {
+  const i = document.createElement('input');
+  i.type = 'file'; i.accept = 'image/*';
+  i.onchange = () => {
+    const f = i.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const S = 320, c = document.createElement('canvas');
+        c.width = c.height = S;
+        const side = Math.min(img.width, img.height);
+        c.getContext('2d').drawImage(img, (img.width-side)/2, (img.height-side)/2, side, side, 0, 0, S, S);
+        cur().photo = c.toDataURL('image/jpeg', .82);
+        save(); paintSheet(); renderTeam();
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(f);
+  };
+  i.click();
+};
+
+function renderRoles(){
+  $('#roleList').innerHTML = state.roles.map((r,i)=>`
+    <div class="item">
+      <input value="${esc(r.name)}" data-rname="${r.id}" style="background:transparent;border:none;padding:0" class="grow">
+      <button class="btn sm ghost" data-up="${i}" ${i===0?'disabled':''}>↑</button>
+      <button class="btn sm ghost" data-down="${i}" ${i===state.roles.length-1?'disabled':''}>↓</button>
+      <button class="btn sm ghost danger" data-rdel="${r.id}">Quitar</button>
+    </div>`).join('') || `<div class="empty">Añade la primera función.</div>`;
+
+  $('#roleList').querySelectorAll('[data-rname]').forEach(i=>{
+    i.onchange = () => { state.roles.find(r => r.id === i.dataset.rname).name = i.value.trim() || 'Función'; save(); renderAll(); };
+  });
+  $('#roleList').querySelectorAll('[data-rdel]').forEach(b=>{
+    b.onclick = () => {
+      state.roles = state.roles.filter(r => r.id !== b.dataset.rdel);
+      state.team.forEach(v => v.roles = v.roles.filter(r => r !== b.dataset.rdel));
+      save(); renderAll();
+    };
+  });
+  const move = (i,j) => { const a = state.roles; [a[i],a[j]] = [a[j],a[i]]; save(); renderAll(); };
+  $('#roleList').querySelectorAll('[data-up]').forEach(b => b.onclick = () => move(+b.dataset.up, +b.dataset.up-1));
+  $('#roleList').querySelectorAll('[data-down]').forEach(b => b.onclick = () => move(+b.dataset.down, +b.dataset.down+1));
+}
+
+function renderLogo(){
+  $('#logoBox').innerHTML = state.logo ? `<img src="${state.logo}" alt="Logo">` : 'Logo';
+  $('#subtitle').textContent = state.subtitle;
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ============================================================
+   Acciones
+   ============================================================ */
+$('#btnAddSvc').onclick = () => {
+  const date = $('#nsDate').value;
+  if(!date) return toast('Elige una fecha');
+  state.services.push({id:uid(), name:$('#nsName').value.trim() || 'Culto', date, time:$('#nsTime').value || '10:00', slots:{}});
+  month = date.slice(0,7); $('#monthPick').value = month;
+  save(); renderAll();
+};
+
+$('#btnGen').onclick = () => {
+  const wd = +$('#genDay').value, name = $('#nsName').value.trim() || 'Culto', time = $('#nsTime').value || '10:00';
+  const [y,m] = month.split('-').map(Number);
+  const d = new Date(y, m-1, 1); let n = 0;
+  while(d.getMonth() === m-1){
+    if(d.getDay() === wd && !state.services.some(s => s.date === iso(d) && s.time === time)){
+      state.services.push({id:uid(), name, date:iso(d), time, slots:{}}); n++;
+    }
+    d.setDate(d.getDate()+1);
+  }
+  save(); renderAll(); toast(n ? `${n} cultos añadidos` : 'Ya estaban creados');
+};
+
+$('#btnAddVol').onclick = () => {
+  const name = $('#newVol').value.trim();
+  if(!name) return toast('Escribe un nombre');
+  const id = uid();
+  state.team.push({id, name, roles:[], phone:'', mail:'', birth:'', since:'', photo:null, avail:[], exp:[], notes:''});
+  $('#newVol').value = '';
+  save(); renderAll(); openSheet(id);
+};
+$('#btnAddRole').onclick = () => {
+  const name = $('#newRole').value.trim();
+  if(!name) return toast('Escribe una función');
+  state.roles.push({id:uid(), name}); $('#newRole').value = '';
+  save(); renderAll();
+};
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x === t));
+    ['escala','equipo','funciones'].forEach(k => $('#tab-'+k).classList.toggle('hidden', k !== t.dataset.tab));
+  };
+});
+
+$('#monthPick').onchange = e => { month = e.target.value; renderAll(); };
+
+$('#logoBox').onclick = () => {
+  const i = document.createElement('input');
+  i.type = 'file'; i.accept = 'image/png,image/jpeg';
+  i.onchange = () => {
+    const f = i.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = () => { state.logo = r.result; save(); renderLogo(); toast('Logo actualizado'); };
+    r.readAsDataURL(f);
+  };
+  i.click();
+};
+
+/* ---------- texto para WhatsApp ---------- */
+function svcText(s){
+  const d = parse(s.date);
+  let t = `*ESCALA MULTIMEDIA*\n*${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}*\n${s.name}\n\n`;
+  state.roles.forEach(r => { t += `• ${r.name}: ${s.slots[r.id] ? volName(s.slots[r.id]) : '_por confirmar_'}\n`; });
+  return t + `\nGracias por servir 🙌`;
+}
+
+async function copyText(t){
+  try{
+    await navigator.clipboard.writeText(t);
+    toast('Copiado, ya puedes pegarlo');
+  }catch(e){
+    window.prompt('Copia el texto:', t);
+  }
+}
+
+$('#btnWhats').onclick = () => {
+  const list = monthServices();
+  if(!list.length) return toast('No hay cultos este mes');
+  const [y,m] = month.split('-').map(Number);
+  let t = `*ESCALA MULTIMEDIA — ${MESES[m-1].toUpperCase()} ${y}*\n`;
+  list.forEach(s=>{
+    const d = parse(s.date);
+    t += `\n*${d.getDate()}/${m} · ${DIAS[d.getDay()]} · ${s.time}*\n${s.name}\n`;
+    state.roles.forEach(r => { t += `• ${r.name}: ${s.slots[r.id] ? volName(s.slots[r.id]) : '—'}\n`; });
   });
   copyText(t);
 };
@@ -789,6 +879,7 @@ function makePDF(list){
     const blockH = 15 + state.roles.length * rowH + 7;
     if(cy + blockH > 280){ doc.addPage(); cy = header(); }
 
+    // franja de fecha
     doc.setFillColor(242,244,247); doc.roundedRect(M, cy, W-2*M, 11, 1.6, 1.6, 'F');
     doc.setTextColor(...dark); doc.setFont('helvetica','bold'); doc.setFontSize(11.5);
     doc.text(`${d.getDate()} de ${MESES[d.getMonth()]}`, M+4, cy+7.4);
@@ -809,6 +900,7 @@ function makePDF(list){
     cy += 7;
   });
 
+  // pie
   const pages = doc.internal.getNumberOfPages();
   for(let p=1; p<=pages; p++){
     doc.setPage(p);
@@ -926,35 +1018,6 @@ $('#cOff').onclick = async () => {
   renderAll();
   if(cfg.url) pull(); else pill('Solo este dispositivo');
 })();
-
-function renderAll(){
-  renderServices();
-  renderVols();
-  renderRoles();
-}
-
-$('#monthPick').onchange = e => { month = e.target.value; renderServices(); };
-
-async function push(){
-  if(!cfg.url) return toast('Configura la URL primero');
-  try{
-    await fetch(cfg.url, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({pin: cfg.pin, data: state})
-    });
-    toast('✅ Datos subidos');
-  }catch(e){ toast('❌ Error al subir'); }
-}
-
-async function pull(){
-  if(!cfg.url) return toast('Configura la URL primero');
-  try{
-    const r = await fetch(cfg.url + '?pin=' + encodeURIComponent(cfg.pin) + '&t=' + Date.now());
-    const data = await r.json();
-    if(data.data){ state = data.data; normalizar(); await save(); renderAll(); toast('✅ Sincronizado'); }
-  }catch(e){ toast('❌ Error al sincronizar'); }
-}
 </script>
 </body>
 </html>
