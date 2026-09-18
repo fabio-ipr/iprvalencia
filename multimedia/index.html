@@ -165,13 +165,8 @@ input::placeholder{color:#5C6675}
 .vcard .nm{font-weight:600}
 .vcard .sub{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-.overlay{
-  position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(8,11,15,.72);z-index:50;
-  display:flex;justify-content:center;align-items:flex-start;
-  padding:20px 12px;overflow-y:auto;-webkit-overflow-scrolling:touch;
-}
-.sheet{width:100%;max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:40px}
+.overlay{position:fixed;inset:0;background:rgba(8,11,15,.72);z-index:50;display:grid;place-items:start center;padding:22px 14px;overflow:auto}
+.sheet{width:100%;max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .sheet-h{display:flex;gap:15px;align-items:center;padding:16px;background:#1D242F;border-bottom:1px solid var(--line)}
 .sheet-b{padding:16px;display:flex;flex-direction:column;gap:16px}
 .sheet-f{padding:13px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
@@ -180,200 +175,227 @@ input::placeholder{color:#5C6675}
 .block>h3{margin:0 0 8px;font-size:16px;font-weight:600}
 textarea{
   background:#151B24;border:1px solid var(--line);border-radius:7px;
-  padding:9px 10px;color:var(--text);width:100%;font-family:inherit;min-height:80px;resize:vertical
+  padding:9px 10px;width:100%;color:var(--text);font-family:inherit;font-size:15px;resize:vertical;min-height:74px;
 }
+.exp{display:grid;grid-template-columns:1fr 1fr 90px 34px;gap:7px;margin-bottom:7px}
+@media (max-width:560px){.exp{grid-template-columns:1fr 70px 34px}}
+.exp input,.exp button{padding:7px 8px;font-size:12px}
+.exp button{cursor:pointer;background:none;border:1px solid var(--line);border-radius:6px;color:var(--muted)}
+.exp button:hover{color:#FF7C71;border-color:var(--tally)}
 </style>
 </head>
 <body>
 
 <header class="bar">
   <div class="brand">
-    <div class="logo">📋</div>
+    <div class="logo" id="logoBtn">📹</div>
     <div>
       <h1>Escala Multimedia</h1>
       <p>Gestión de asignaciones y voluntarios</p>
     </div>
   </div>
   <div class="bar-right">
-    <input type="month" id="monthPick" style="width:auto">
-    <button id="btnCloud" class="btn sm">☁️ Nube</button>
-    <button id="btnCopy" class="btn sm">📋 Copiar</button>
-    <button id="btnPdf" class="btn sm">📄 PDF</button>
-    <button class="btn sm ghost" onclick="window.location.href='/'">← Volver</button>
+    <button id="btnCloud" class="btn ghost">☁️ Nube</button>
+    <button id="btnCopy" class="btn ghost">📋 Copiar</button>
+    <button id="btnPdf" class="btn ghost">📄 PDF</button>
+    <button class="btn ghost" onclick="window.location.href='/'">← Volver</button>
   </div>
 </header>
 
-<div class="tabs">
-  <button class="tab" aria-selected="true" onclick="switchTab('cultos')">Cultos</button>
-  <button class="tab" onclick="switchTab('voluntarios')">Voluntarios</button>
-  <button class="tab" onclick="switchTab('config')">Config</button>
-</div>
+<main class="wrap">
+  <div class="tabs">
+    <button class="tab" aria-selected="true" data-tab="escala">📅 Escala</button>
+    <button class="tab" data-tab="equipo">👥 Equipo</button>
+    <button class="tab" data-tab="funciones">⚙️ Funciones</button>
+  </div>
 
-<div class="wrap">
-  <div class="cols">
-    <div>
-      <!-- TAB: CULTOS -->
-      <div id="tab-cultos" style="display:block">
-        <div class="panel" style="margin-bottom:20px">
-          <div class="panel-h">
-            <h2>Nuevo culto</h2>
-          </div>
+  <!-- TAB ESCALA -->
+  <div id="escala" class="tab-pane">
+    <div class="cols">
+      <div>
+        <div class="panel">
+          <div class="panel-h"><h2>Nuevo culto</h2></div>
           <div class="panel-b">
             <div class="row">
-              <div class="field fld-name">
-                <label>Nombre del culto</label>
-                <input id="fName" type="text" placeholder="Ej: Culto de domingo">
-              </div>
-              <div class="field" style="flex:0 1 140px">
-                <label>Fecha</label>
-                <input id="fDate" type="date">
-              </div>
-              <div class="field" style="flex:0 1 100px">
-                <label>Hora</label>
-                <input id="fTime" type="time" value="10:00">
-              </div>
-              <button id="btnAdd" class="btn primary">+ Agregar</button>
+              <div class="field fld-name"><label>Nombre</label><input id="nsName"></div>
+              <div class="field"><label>Fecha</label><input type="date" id="nsDate"></div>
+              <div class="field"><label>Hora</label><input type="time" id="nsTime" value="10:00"></div>
+              <button class="btn primary" onclick="addService()">+ Agregar</button>
             </div>
           </div>
         </div>
 
-        <div id="svcList"></div>
-      </div>
-
-      <!-- TAB: VOLUNTARIOS -->
-      <div id="tab-voluntarios" style="display:none">
-        <div class="panel" style="margin-bottom:20px">
-          <div class="panel-h">
-            <h2>Nuevo voluntario</h2>
-          </div>
-          <div class="panel-b">
-            <div class="row">
-              <div class="field fld-name">
-                <label>Nombre</label>
-                <input id="vName" type="text" placeholder="Nombre completo">
-              </div>
-              <button id="btnAddVol" class="btn primary">+ Agregar</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="volList"></div>
-      </div>
-
-      <!-- TAB: CONFIG -->
-      <div id="tab-config" style="display:none">
         <div class="panel">
           <div class="panel-h">
-            <h2>Configuración</h2>
+            <h2 id="mTitle"></h2>
+            <input type="month" id="monthPick" style="margin-left:auto">
           </div>
+          <div class="panel-b" id="svcList"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="panel-h"><h2>Este mes</h2></div>
           <div class="panel-b">
-            <div class="field">
-              <label>Nombre del equipo</label>
-              <input id="cfgSubtitle" type="text" placeholder="Ej: Equipo de transmisión">
-            </div>
-            <div class="field" style="margin-top:12px">
-              <label>Logo (URL o archivo)</label>
-              <input id="cfgLogo" type="text" placeholder="URL de la imagen">
-            </div>
-            <button id="btnSaveCfg" class="btn primary" style="margin-top:12px">Guardar</button>
+            <div class="item"><div class="grow"><div class="nm" id="countSvc">0</div><div class="sub">Cultos</div></div><span class="count" id="countSvc">0</span></div>
+            <div class="item"><div class="grow"><div class="nm">Confirmaciones</div><div class="sub">de voluntarios</div></div><span class="count" id="countConf">0</span></div>
+            <p class="hint">Total de asignaciones realizadas este mes.</p>
           </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h"><h2>Más participados</h2></div>
+          <div class="panel-b" id="topList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB EQUIPO -->
+  <div id="equipo" class="tab-pane hidden">
+    <div class="panel">
+      <div class="panel-h"><h2>Agregar voluntario</h2></div>
+      <div class="panel-b">
+        <div class="row">
+          <div class="field fld-name"><label>Nombre</label><input id="vnName" placeholder="Nombre completo"></div>
+          <div class="field"><label>Teléfono</label><input id="vnPhone" placeholder="+34 6XX XXXXX"></div>
+          <div class="field"><label>Email</label><input id="vnMail" type="email" placeholder="email@correo.com"></div>
+          <button class="btn primary" onclick="addVol()">+ Agregar</button>
         </div>
       </div>
     </div>
 
-    <!-- SIDEBAR LATERAL -->
-    <div>
-      <div class="panel">
-        <div class="panel-h">
-          <h2>Funciones</h2>
-        </div>
-        <div class="panel-b">
-          <div id="rolesList" class="list"></div>
-          <div class="row" style="margin-top:10px">
-            <input id="newRole" type="text" placeholder="Nueva función" style="flex:1">
-            <button id="btnAddRole" class="btn sm primary">+</button>
-          </div>
+    <div class="cols">
+      <div id="volList"></div>
+      <div>
+        <div class="panel">
+          <div class="panel-h"><h2>Funciones</h2></div>
+          <div class="panel-b chips" id="roleChips"></div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="panel" style="margin-top:14px">
-        <div class="panel-h">
-          <h2>Voluntarios</h2>
-        </div>
-        <div class="panel-b">
-          <div id="volSummary" class="list"></div>
+  <!-- TAB FUNCIONES -->
+  <div id="funciones" class="tab-pane hidden">
+    <div class="panel">
+      <div class="panel-h"><h2>Personalizar funciones</h2></div>
+      <div class="panel-b">
+        <div class="row">
+          <div class="field fld-name"><label>Nueva función</label><input id="nrName" placeholder="ej. Dirección de corte"></div>
+          <button class="btn primary" onclick="addRole()">+ Agregar</button>
         </div>
       </div>
+    </div>
+    <div id="roleList"></div>
+  </div>
+</main>
 
-      <div class="alert" style="margin-top:14px">
-        Datos guardados localmente en este navegador. Usa "☁️ Nube" para sincronizar con Google.
+<!-- DIALOGO NUBE -->
+<div class="overlay hidden" id="cloudWrap">
+  <div class="sheet">
+    <div class="sheet-h">
+      <h2 style="margin:0">Sincronización en la nube</h2>
+    </div>
+    <div class="sheet-b">
+      <div class="block">
+        <h3>🔗 URL del servidor</h3>
+        <input type="text" id="cUrl" placeholder="https://ejemplo.com/api/escala">
+        <p class="hint">Dirección del servidor donde se guardarán los datos.</p>
       </div>
+      <div class="block">
+        <h3>🔐 PIN</h3>
+        <div class="field"><label for="cPin">PIN</label>
+          <input id="cPin" placeholder="El mismo que pusiste en el código"></div>
+        <p class="hint">Todos los que abran la app con esta dirección y este PIN comparten la misma escala. Al conectar se descargará lo que haya en la hoja.</p>
+      </div>
+    </div>
+    <div class="sheet-f">
+      <button class="btn ghost" onclick="closeCloud = () => $('#cloudWrap').classList.add('hidden'); closeCloud();">Cancelar</button>
+      <button class="btn primary" id="cSave">Guardar cambios</button>
+      <button class="btn primary" id="cPush">Subir ahora</button>
+      <button class="btn" id="cOff">Solo este dispositivo</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL NUBE -->
-<div class="overlay hidden" id="cloudWrap">
+<!-- DIÁLOGO VOLUNTARIO -->
+<div class="overlay hidden" id="volWrap">
   <div class="sheet">
     <div class="sheet-h">
-      <h2>⚙️ Sincronización con Google Sheets</h2>
+      <div class="avatar big" id="fAvatar">👤</div>
+      <div style="flex:1">
+        <h2 style="margin:0" id="fName"></h2>
+        <p style="margin:6px 0 0;color:var(--muted);font-size:13px" id="fRole"></p>
+      </div>
+      <button class="btn ghost" style="width:auto" onclick="document.getElementById('volWrap').classList.add('hidden')">✕</button>
     </div>
     <div class="sheet-b">
       <div class="block">
-        <h3>URL del Apps Script</h3>
-        <input id="cUrl" type="text" placeholder="Pega la URL del Apps Script de Google">
-        <div class="hint">Obtén esta URL del admin de Google Apps Script</div>
+        <h3>Contacto</h3>
+        <div class="grid2">
+          <div class="field"><label>Teléfono</label><input id="fPhone"></div>
+          <div class="field"><label>Email</label><input id="fMail"></div>
+          <div class="field"><label>Cumpleaños</label><input type="date" id="fBirth"></div>
+          <div class="field"><label>En el equipo desde</label><input id="fSince"></div>
+        </div>
       </div>
       <div class="block">
-        <h3>PIN de acceso</h3>
-        <input id="cPin" type="password" placeholder="Código de 4-6 dígitos">
+        <h3>Funciones</h3>
+        <div id="fRoles"></div>
+      </div>
+      <div class="block">
+        <h3>Disponibilidad</h3>
+        <div id="fAvail"></div>
+      </div>
+      <div class="block">
+        <h3>Experiencia en otros sitios</h3>
+        <div id="fExp"></div>
+        <button class="btn sm" onclick="addExp()">+ Agregar</button>
+      </div>
+      <div class="block">
+        <h3>Notas</h3>
+        <textarea id="fNotes" placeholder="Observaciones sobre este voluntario..."></textarea>
       </div>
     </div>
     <div class="sheet-f">
-      <button class="btn ghost" onclick="document.getElementById('cloudWrap').classList.add('hidden')">Cancelar</button>
-      <button id="cOff" class="btn ghost">Desconectar</button>
-      <button id="cPush" class="btn primary">📤 Subir</button>
-      <button id="cSave" class="btn primary">Guardar</button>
+      <button class="btn" id="fPdf">📄 Descargar ficha</button>
+      <button class="btn primary" id="fSave">Guardar</button>
+      <button class="btn danger" id="fDel">Eliminar</button>
     </div>
   </div>
 </div>
 
 <script>
-const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-const DIAS  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-const K_CFG = 'escala-config';
-const K_DATA = 'escala-multimedia';
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
 
-const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
-const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 
 let state = null;
 let month = new Date().toISOString().slice(0,7);
+let cur_vol = null;
 let cfg = {url:'', pin:''};
 
-function switchTab(tab){
-  document.querySelectorAll('[id^="tab-"]').forEach(el => el.style.display='none');
-  document.querySelectorAll('.tab').forEach(el => el.setAttribute('aria-selected', 'false'));
-  $('tab-' + tab).style.display = 'block';
-  event.target.setAttribute('aria-selected', 'true');
-}
+const K_STATE = 'escala-multimedia';
+const K_CFG = 'escala-config';
 
-async function lget(key){ try{ return localStorage.getItem(key); }catch(e){} return null; }
-async function lset(key, val){ try{ localStorage.setItem(key, val); return true; }catch(e){} return false; }
+// UTILIDADES
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-async function load(){
-  const raw = await lget(K_DATA);
-  if(raw) try{ return JSON.parse(raw); }catch(e){}
-  return demoData();
-}
+// localStorage con soporte a async
+const lget = async (k) => localStorage.getItem(k);
+const lset = async (k, v) => { localStorage.setItem(k, v); return true; };
 
-async function save(){
-  await lset(K_DATA, JSON.stringify(state));
-}
-
-function demoData(){
+function initState(){
+  const V = (id,name,roles,phone,mail,since,avail,exp,notes) =>
+    ({id, name, roles, phone, mail, since, birth:'', photo:null, avail, exp, notes});
   const roles = [
     {id:'r1', name:'Dirección de corte'},
     {id:'r2', name:'PTZ'},
@@ -384,16 +406,15 @@ function demoData(){
     {id:'r7', name:'Fotografía'}
   ];
   const team = [
-    {id:'v1', name:'Marcos Ferreira', roles:['r1','r2','r4'], phone:'+34 611 22 33 44', mail:'marcos@correo.com', since:'marzo de 2021', birth:'', photo:null, avail:[0,3], exp:[], notes:''},
-    {id:'v2', name:'Lucía Ramos', roles:['r3','r7'], phone:'+34 622 33 44 55', mail:'lucia@correo.com', since:'enero de 2023', birth:'', photo:null, avail:[0], exp:[], notes:''},
-    {id:'v3', name:'Iván Delgado', roles:['r5','r4'], phone:'+34 633 44 55 66', mail:'ivan@correo.com', since:'sept de 2024', birth:'', photo:null, avail:[0,3], exp:[], notes:''},
-    {id:'v4', name:'Nerea Castillo', roles:['r5','r7'], phone:'+34 644 55 66 77', mail:'nerea@correo.com', since:'mayo de 2025', birth:'', photo:null, avail:[0], exp:[], notes:''},
-    {id:'v5', name:'Rubén Alcántara', roles:['r6','r4'], phone:'+34 655 66 77 88', mail:'ruben@correo.com', since:'febrero de 2020', birth:'', photo:null, avail:[0,3], exp:[], notes:''},
-    {id:'v6', name:'Sara Montoya', roles:['r3','r5'], phone:'+34 666 77 88 99', mail:'sara@correo.com', since:'octubre de 2023', birth:'', photo:null, avail:[3], exp:[], notes:''},
-    {id:'v7', name:'Diego Pinheiro', roles:['r1','r2','r6'], phone:'+34 677 88 99 00', mail:'diego@correo.com', since:'agosto de 2019', birth:'', photo:null, avail:[0,3], exp:[], notes:''},
-    {id:'v8', name:'Carla Ibáñez', roles:['r7','r3'], phone:'+34 688 99 00 11', mail:'carla@correo.com', since:'abril de 2022', birth:'', photo:null, avail:[0], exp:[], notes:''}
+    V('v1','Marcos Ferreira',['r1','r2','r4'],'+34 611 22 33 44','marcos.f@correo.com','marzo de 2021',[0,3],[],'Conoce bien el ATEM. Puede formar a gente nueva en corte.'),
+    V('v2','Lucía Ramos',['r3','r7'],'+34 622 33 44 55','lucia.ramos@correo.com','enero de 2023',[0],[],'Prefiere cámara móvil en la primera parte del culto.'),
+    V('v3','Iván Delgado',['r5','r4'],'+34 633 44 55 66','ivan.d@correo.com','septiembre de 2024',[0,3],[],null),
+    V('v4','Nerea Castillo',['r5','r7'],'+34 644 55 66 77','nerea.c@correo.com','mayo de 2025',[0],[],'Nueva en Holyrics, aún acompañada.'),
+    V('v5','Rubén Alcántara',['r6','r4'],'+34 655 66 77 88','ruben.a@correo.com','febrero de 2020',[0,3],[],'Referencia para la X32.'),
+    V('v6','Sara Montoya',['r3','r5'],'+34 666 77 88 99','sara.m@correo.com','octubre de 2023',[3],[],'Solo puede entre semana durante el curso.'),
+    V('v7','Diego Pinheiro',['r1','r2','r6'],'+34 677 88 99 00','diego.p@correo.com','agosto de 2019',[0,3],[],'Segundo director de corte.'),
+    V('v8','Carla Ibáñez',['r7','r3'],'+34 688 99 00 11','carla.i@correo.com','abril de 2022',[0],[],'')
   ];
-  
   const today = new Date();
   const y = today.getFullYear(), m = today.getMonth();
   const services = [];
@@ -407,189 +428,336 @@ function demoData(){
     }
     d.setDate(d.getDate()+1);
   }
-  
   const rota = {
     r1:['v1','v7'], r2:['v7','v1'], r3:['v2','v6','v8'], r4:['v3','v5','v1'],
     r5:['v4','v6','v3'], r6:['v5','v7'], r7:['v8','v2','v4']
   };
   services.forEach((s,i)=>{ roles.forEach(r=>{ const p = rota[r.id]; s.slots[r.id] = p[i % p.length]; }); });
-  
   return {roles, team, services, logo:null, subtitle:'Equipo de transmisión'};
 }
 
-function volName(id){ const v = state.team.find(t => t.id === id); return v ? v.name : '—'; }
-function roleName(id){ const r = state.roles.find(t => t.id === id); return r ? r.name : ''; }
-
-function normalizar(){
-  state.services = state.services || [];
-  state.team = state.team || [];
-  state.roles = state.roles || [];
+async function load(){
+  try{
+    const raw = await lget(K_STATE);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return initState();
 }
 
-function renderAll(){ renderServices(); renderVolunteers(); renderRoles(); renderVolSummary(); }
+async function save(){
+  await lset(K_STATE, JSON.stringify(state));
+}
+
+function normalizar(){
+  // Asegurar que todos los servicios tienen slots
+  state.services.forEach(s => {
+    if(!s.slots) s.slots = {};
+  });
+  // Asegurar que todo voluntario tiene los arrays necesarios
+  state.team.forEach(v => {
+    if(!v.roles) v.roles = [];
+    if(!v.avail) v.avail = [];
+    if(!v.exp) v.exp = [];
+  });
+}
+
+function switchTab(tabName){
+  $$('.tab').forEach(t => t.removeAttribute('aria-selected'));
+  $$('.tab-pane').forEach(p => p.classList.add('hidden'));
+  event.target.setAttribute('aria-selected', 'true');
+  $(`#${tabName}`).classList.remove('hidden');
+  renderAll();
+}
+
+// TABS
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function(){
+    const tabName = this.getAttribute('data-tab');
+    document.querySelectorAll('.tab').forEach(t => t.removeAttribute('aria-selected'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+    this.setAttribute('aria-selected', 'true');
+    document.getElementById(tabName).classList.remove('hidden');
+    renderAll();
+  });
+});
+
+// ===== SERVICIOS =====
+function addService(){
+  const name = $('#nsName').value.trim();
+  const date = $('#nsDate').value;
+  const time = $('#nsTime').value;
+  if(!name || !date) return toast('Completa los datos');
+  state.services.push({id:Math.random().toString(36).slice(2,9), name, date, time, slots:{}});
+  save();
+  $('#nsName').value = 'Culto de domingo';
+  $('#nsDate').value = '';
+  $('#nsTime').value = '10:00';
+  renderServices();
+}
+
+function monthServices(){
+  return state.services.filter(s => s.date.startsWith(month)).sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+}
 
 function renderServices(){
-  const list = state.services.filter(s => s.date.startsWith(month)).sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
-  const html = list.map(s=>{
+  const list = monthServices();
+  $('#mTitle').textContent = month ? MESES[Number(month.split('-')[1])-1] : 'Mes';
+  if(!list.length){ $('#svcList').innerHTML = '<div class="empty">No hay cultos</div>'; return; }
+
+  let html = '';
+  list.forEach(s => {
     const d = parse(s.date);
-    const slots = state.roles.map(r=>{
-      const vol = s.slots[r.id];
-      return `<div class="slot ${vol ? '' : 'gap'}">
+    const slots = state.roles.map(r => {
+      const vid = s.slots[r.id] || '';
+      const vol = vid ? state.team.find(v => v.id === vid) : null;
+      const opts = state.team.filter(v => v.roles.includes(r.id)).map(v => `<option value="${v.id}" ${vid === v.id ? 'selected' : ''}>${v.name}</option>`).join('');
+      const gap = vid ? '' : ' gap';
+      return `<div class="slot${gap}">
         <span class="dot"></span>
         <span class="rname">${esc(r.name)}</span>
-        <select onchange="assign('${s.id}','${r.id}',this.value)" style="flex:1">
-          <option value="">— sin asignar —</option>
-          ${state.team.map(v => `<option value="${v.id}" ${vol===v.id ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}
+        <select onchange="setSlot('${s.id}','${r.id}',this.value)">
+          <option value="">-- Asignar --</option>
+          ${opts}
         </select>
       </div>`;
     }).join('');
-    return `<div class="svc">
+    html += `<div class="svc">
       <div class="svc-h">
         <div class="daychip"><div class="d">${d.getDate()}</div><div class="m">${DIAS[d.getDay()].slice(0,3)}</div></div>
         <div class="svc-t">
           <div class="name">${esc(s.name)}</div>
-          <div class="meta">${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}</div>
+          <div class="meta">${DIAS[d.getDay()]} · ${s.time}</div>
         </div>
         <div class="svc-acts">
-          <button class="btn sm ghost" onclick="delService('${s.id}')">🗑️</button>
+          <button class="btn sm" onclick="delService('${s.id}')">✕</button>
         </div>
       </div>
       <div class="slots">${slots}</div>
     </div>`;
-  }).join('');
-  $('svcList').innerHTML = html || '<div class="empty">No hay cultos este mes</div>';
+  });
+  $('#svcList').innerHTML = html;
+  updateStats();
 }
 
-function renderVolunteers(){
-  const html = state.team.map(v => `<div class="vcard">
-    <div class="avatar">${v.name.charAt(0)}</div>
-    <div class="grow">
-      <div class="nm">${esc(v.name)}</div>
-      <div class="sub">${v.roles.map(roleName).join(' · ')}</div>
-    </div>
-    <button class="btn sm ghost" onclick="editVol('${v.id}')">✏️</button>
-    <button class="btn sm ghost" onclick="delVol('${v.id}')">🗑️</button>
-  </div>`).join('');
-  $('volList').innerHTML = html || '<div class="empty">Sin voluntarios</div>';
-}
-
-function renderRoles(){
-  const html = state.roles.map(r => `<div class="item">
-    <div class="grow">${esc(r.name)}</div>
-    <button class="btn sm ghost" onclick="delRole('${r.id}')">×</button>
-  </div>`).join('');
-  $('rolesList').innerHTML = html;
-}
-
-function renderVolSummary(){
-  const html = state.team.map(v => {
-    const count = state.services.filter(s => Object.values(s.slots).includes(v.id)).length;
-    return `<div class="item" onclick="editVol('${v.id}')">
-      <div class="grow">${esc(v.name)}</div>
-      <div class="count">${count}</div>
-    </div>`;
-  }).join('');
-  $('volSummary').innerHTML = html || '<div class="empty">Sin datos</div>';
-}
-
-function assign(sid, rid, vid){
-  const s = state.services.find(s => s.id === sid);
-  if(s) s.slots[rid] = vid;
+function setSlot(svcId, roleId, volId){
+  const svc = state.services.find(s => s.id === svcId);
+  if(svc) svc.slots[roleId] = volId;
   save();
   renderServices();
-  renderVolSummary();
 }
 
 function delService(id){
-  state.services = state.services.filter(s => s.id !== id);
-  save();
-  renderServices();
+  if(confirm('¿Eliminar este culto?')){
+    state.services = state.services.filter(s => s.id !== id);
+    save();
+    renderServices();
+  }
 }
 
-function delRole(id){
-  state.roles = state.roles.filter(r => r.id !== id);
-  state.team.forEach(v => { v.roles = v.roles.filter(r => r !== id); });
+// ===== VOLUNTARIOS =====
+function addVol(){
+  const name = $('#vnName').value.trim();
+  if(!name) return toast('Completa el nombre');
+  state.team.push({id:Math.random().toString(36).slice(2,9), name, phone:'', mail:'', roles:[], birth:'', photo:null, avail:[], exp:[], notes:''});
   save();
-  renderAll();
+  $('#vnName').value = '';
+  $('#vnPhone').value = '';
+  $('#vnMail').value = '';
+  renderVols();
+}
+
+function renderVols(){
+  const html = state.team.map(v => {
+    const roles = v.roles.map(rid => state.roles.find(r => r.id === rid)?.name || '').filter(Boolean).join(', ');
+    return `<div class="vcard" onclick="editVol('${v.id}')">
+      <div class="avatar">${v.photo ? '📷' : '👤'}</div>
+      <div style="flex:1">
+        <div class="nm">${esc(v.name)}</div>
+        <div class="sub">${roles || 'Sin funciones'}</div>
+      </div>
+    </div>`;
+  }).join('');
+  $('#volList').innerHTML = html || '<div class="empty">Sin voluntarios</div>';
 }
 
 function editVol(id){
-  const v = state.team.find(v => v.id === id);
-  if(!v) return;
-  const roleCheckboxes = state.roles.map(r => `<label style="display:flex;gap:8px;align-items:center;margin:5px 0">
-    <input type="checkbox" ${v.roles.includes(r.id) ? 'checked' : ''} onchange="e => {
-      if(e.target.checked) v.roles.push('${r.id}'); else v.roles = v.roles.filter(x => x !== '${r.id}');
-    }">
-    ${esc(r.name)}
-  </label>`).join('');
-  alert('Edición de ' + v.name + '\n\nFuncionalidad básica: puedes modificar el JSON directamente o editar via consola.');
+  cur_vol = state.team.find(v => v.id === id);
+  if(!cur_vol) return;
+
+  $('#fName').textContent = cur_vol.name;
+  $('#fPhone').value = cur_vol.phone;
+  $('#fMail').value = cur_vol.mail;
+  $('#fBirth').value = cur_vol.birth;
+  $('#fSince').value = cur_vol.since;
+  $('#fNotes').value = cur_vol.notes;
+
+  let roles = '<div class="chips">';
+  state.roles.forEach(r => {
+    const sel = cur_vol.roles.includes(r.id);
+    roles += `<button class="chip" aria-pressed="${sel}" onclick="toggleVolRole('${r.id}')">${esc(r.name)}</button>`;
+  });
+  roles += '</div>';
+  $('#fRoles').innerHTML = roles;
+
+  let avail = '<div class="chips">';
+  ['Domingos','Miércoles'].forEach((name, i) => {
+    const sel = cur_vol.avail.includes(i);
+    avail += `<button class="chip" aria-pressed="${sel}" onclick="toggleVolAvail(${i})">${name}</button>`;
+  });
+  avail += '</div>';
+  $('#fAvail').innerHTML = avail;
+
+  let exp = '';
+  if(cur_vol.exp && cur_vol.exp.length){
+    cur_vol.exp.forEach((e, i) => {
+      exp += `<div class="exp">
+        <input value="${esc(e.place || '')}" onchange="cur_vol.exp[${i}].place=this.value">
+        <input value="${esc(e.role || '')}" onchange="cur_vol.exp[${i}].role=this.value">
+        <input value="${esc(e.time || '')}" onchange="cur_vol.exp[${i}].time=this.value">
+        <button onclick="cur_vol.exp.splice(${i},1);editVol('${id}')">✕</button>
+      </div>`;
+    });
+  }
+  $('#fExp').innerHTML = exp;
+
+  $('#volWrap').classList.remove('hidden');
 }
 
-function delVol(id){
-  state.team = state.team.filter(v => v.id !== id);
-  state.services.forEach(s => { Object.keys(s.slots).forEach(k => { if(s.slots[k] === id) delete s.slots[k]; }); });
-  save();
-  renderAll();
+function cur(){ return cur_vol; }
+function toggleVolRole(rid){
+  const idx = cur_vol.roles.indexOf(rid);
+  if(idx > -1) cur_vol.roles.splice(idx, 1);
+  else cur_vol.roles.push(rid);
+  editVol(cur_vol.id);
 }
 
-$('btnAdd').onclick = () => {
-  const name = $('fName').value.trim();
-  const date = $('fDate').value;
-  const time = $('fTime').value;
-  if(!name || !date) return toast('Falta nombre o fecha');
-  state.services.push({
-    id: Math.random().toString(36).slice(2,9),
-    name, date, time,
-    slots: {}
-  });
-  $('fName').value = '';
-  save();
-  renderServices();
-};
+function toggleVolAvail(day){
+  const idx = cur_vol.avail.indexOf(day);
+  if(idx > -1) cur_vol.avail.splice(idx, 1);
+  else cur_vol.avail.push(day);
+  editVol(cur_vol.id);
+}
 
-$('btnAddVol').onclick = () => {
-  const name = $('vName').value.trim();
-  if(!name) return toast('Falta nombre');
-  state.team.push({
-    id: Math.random().toString(36).slice(2,9),
-    name, roles:[], phone:'', mail:'', since:'', birth:'', photo:null, avail:[], exp:[], notes:''
-  });
-  $('vName').value = '';
-  save();
-  renderAll();
-};
+function addExp(){
+  if(!cur_vol.exp) cur_vol.exp = [];
+  cur_vol.exp.push({place:'', role:'', time:''});
+  editVol(cur_vol.id);
+}
 
-$('btnAddRole').onclick = () => {
-  const name = $('newRole').value.trim();
-  if(!name) return toast('Falta nombre de función');
-  state.roles.push({id:Math.random().toString(36).slice(2,9), name});
-  $('newRole').value = '';
-  save();
-  renderAll();
-};
-
-$('btnSaveCfg').onclick = async () => {
-  state.subtitle = $('cfgSubtitle').value.trim();
+$('#fSave').onclick = async () => {
+  cur_vol.phone = $('#fPhone').value;
+  cur_vol.mail = $('#fMail').value;
+  cur_vol.birth = $('#fBirth').value;
+  cur_vol.since = $('#fSince').value;
+  cur_vol.notes = $('#fNotes').value;
   await save();
-  pill('Configuración guardada');
+  $('#volWrap').classList.add('hidden');
+  renderVols();
 };
 
-$('monthPick').onchange = e => { month = e.target.value; renderServices(); };
+$('#fDel').onclick = () => {
+  if(confirm('¿Eliminar a ' + cur_vol.name + '?')){
+    state.team = state.team.filter(v => v.id !== cur_vol.id);
+    save();
+    $('#volWrap').classList.add('hidden');
+    renderVols();
+  }
+};
 
+// ===== FUNCIONES =====
+function addRole(){
+  const name = $('#nrName').value.trim();
+  if(!name) return toast('Completa el nombre');
+  state.roles.push({id:'r'+Math.random().toString(36).slice(2,9), name});
+  save();
+  $('#nrName').value = '';
+  renderRoles();
+}
+
+function renderRoles(){
+  const html = state.roles.map(r => `<div class="panel" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <span>${esc(r.name)}</span>
+    <button class="btn sm danger" onclick="delRole('${r.id}')">✕</button>
+  </div>`).join('');
+  $('#roleList').innerHTML = html || '<div class="empty">Sin funciones</div>';
+  renderRoleChips();
+}
+
+function renderRoleChips(){
+  const html = state.roles.map(r => `<span class="chip">${esc(r.name)}</span>`).join('');
+  $('#roleChips').innerHTML = html;
+}
+
+function delRole(id){
+  if(confirm('¿Eliminar esta función?')){
+    state.roles = state.roles.filter(r => r.id !== id);
+    save();
+    renderRoles();
+  }
+}
+
+// ===== ESTADÍSTICAS =====
+function updateStats(){
+  const list = monthServices();
+  $('#countSvc').textContent = list.length;
+  let conf = 0;
+  list.forEach(s => {
+    state.roles.forEach(r => { if(s.slots[r.id]) conf++; });
+  });
+  $('#countConf').textContent = conf;
+
+  const ranking = {};
+  state.team.forEach(v => ranking[v.id] = {name:v.name, count:0});
+  list.forEach(s => {
+    state.roles.forEach(r => { if(s.slots[r.id]) ranking[s.slots[r.id]].count++; });
+  });
+  const top = Object.values(ranking).sort((a,b) => b.count - a.count).slice(0,5);
+  const html = top.map(t => `<div class="item"><div class="grow"><div class="nm">${esc(t.name)}</div></div><span class="count">${t.count}</span></div>`).join('');
+  $('#topList').innerHTML = html || '<div class="empty">Sin datos</div>';
+}
+
+// ===== UTILIDADES =====
+function volName(vid){
+  const v = state.team.find(v => v.id === vid);
+  return v ? v.name : '?';
+}
+
+function roleName(rid){
+  const r = state.roles.find(r => r.id === rid);
+  return r ? r.name : '';
+}
+
+function copyText(txt){
+  navigator.clipboard.writeText(txt).then(() => toast('✅ Copiado')).catch(() => toast('Error al copiar'));
+}
+
+function pill(msg){
+  const el = document.createElement('div');
+  el.className = 'pill busy';
+  el.textContent = msg;
+  const p = document.querySelector('.panel-h') || document.querySelector('.bar-right');
+  if(p) p.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+/* ---------- Copiar para WhatsApp ---------- */
 $('#btnCopy').onclick = () => {
-  let t = '';
-  state.services.filter(s => s.date.startsWith(month)).forEach(s => {
-    t += `${s.name} (${s.date} ${s.time})\n`;
-    state.roles.forEach(r => { t += `• ${r.name}: ${s.slots[r.id] ? volName(s.slots[r.id]) : '—'}\n`; });
+  const list = monthServices();
+  let t = '📅 *ESCALA MULTIMEDIA* 📅\n\n';
+  list.forEach(s=>{
+    const d = parse(s.date);
+    t += `📍 *${s.name}*\n${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}\n\n`;
+    state.roles.forEach(r=>{
+      const v = s.slots[r.id];
+      t += `  • ${r.name}: ${v ? volName(v) : 'por confirmar'}\n`;
+    });
+    t += '\n';
   });
   copyText(t);
 };
 
-const copyText = t => { navigator.clipboard.writeText(t).then(() => pill('Copiado')).catch(() => toast('Error al copiar')); };
-
+/* ---------- PDF ---------- */
 $('#btnPdf').onclick = () => makePDF(monthServices());
-
-function monthServices(){ return state.services.filter(s => s.date.startsWith(month)).sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time)); }
 
 function makePDF(list){
   if(!list.length) return toast('No hay cultos que exportar');
@@ -654,25 +822,66 @@ function makePDF(list){
   doc.save(`escala-multimedia-${month}${single}.pdf`);
 }
 
-$('#btnCloud').onclick = () => {
-  $('cUrl').value = cfg.url; $('cPin').value = cfg.pin;
-  $('cloudWrap').classList.remove('hidden');
-};
-const closeCloud = () => $('cloudWrap').classList.add('hidden');
-$('cloudWrap').onclick = e => { if(e.target.id === 'cloudWrap') closeCloud(); };
-$('#cSave').onclick = async () => {
-  cfg = {url: $('cUrl').value.trim(), pin: $('cPin').value.trim()};
-  await lset(K_CFG, JSON.stringify(cfg));
-  closeCloud();
-  cfg.url ? pill('Conectado') : pill('Solo este dispositivo');
-};
-$('#cOff').onclick = async () => {
-  cfg = {url:'', pin:''};
-  await lset(K_CFG, JSON.stringify(cfg));
-  closeCloud(); pill('Desconectado');
-};
+$('#fPdf').onclick = () => {
+  const v = cur(); if(!v) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'mm', format:'a4'});
+  const W = 210, M = 16, dark = [18,22,29], amber = [200,135,40], grey = [125,135,150], line = [222,226,232];
 
-function pill(msg){ const el = document.createElement('div'); el.className='pill'; el.textContent = msg; el.style.position='fixed'; el.style.bottom='20px'; el.style.right='20px'; el.style.zIndex='100'; document.body.appendChild(el); setTimeout(() => el.remove(), 2000); }
+  doc.setFillColor(...dark); doc.rect(0, 0, W, 46, 'F');
+  doc.setFillColor(...amber); doc.rect(0, 46, W, 1.2, 'F');
+  let tx = M;
+  if(v.photo){ try{ doc.addImage(v.photo, 'JPEG', M, 9, 28, 28); tx = M + 34; }catch(e){} }
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(19);
+  doc.text(v.name || 'Sin nombre', tx, 22);
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(200,205,215);
+  doc.text(`Ficha de voluntario · ${state.subtitle}`, tx, 30);
+  if(state.logo){ try{ doc.addImage(state.logo, 'PNG', W-M-16, 12, 16, 16); }catch(e){} }
+
+  let y = 60;
+  const H = t => { doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...dark); doc.text(t, M, y); y += 3;
+    doc.setDrawColor(...line); doc.setLineWidth(.3); doc.line(M, y, W-M, y); y += 7; };
+  const P = (k, val) => {
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...grey); doc.text(k, M, y);
+    doc.setTextColor(...dark); doc.setFont('helvetica','bold');
+    doc.text(String(val || '—'), M+46, y); y += 6.6;
+  };
+
+  H('Contacto');
+  P('Teléfono', v.phone); P('Correo', v.mail);
+  P('Cumpleaños', v.birth ? (() => { const d = parse(v.birth); return `${d.getDate()} de ${MESES[d.getMonth()]}`; })() : '');
+  P('En el equipo desde', v.since);
+
+  y += 5; H('Funciones');
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...dark);
+  doc.text(doc.splitTextToSize(v.roles.map(roleName).filter(Boolean).join(' · ') || 'Sin funciones marcadas', W-2*M), M, y);
+  y += 6 + (v.roles.length > 5 ? 5 : 0);
+
+  y += 5; H('Días disponibles');
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...dark);
+  doc.text((v.avail && v.avail.length ? v.avail.slice().sort().map(i => DIAS[i]).join(' · ') : 'Sin restricción indicada'), M, y);
+  y += 11;
+
+  H('Experiencia en otros sitios');
+  if(v.exp && v.exp.length){
+    v.exp.forEach(e=>{
+      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...dark);
+      doc.text(e.place || '—', M, y);
+      doc.setFont('helvetica','normal'); doc.setTextColor(...grey);
+      doc.text([e.role, e.time].filter(Boolean).join(' · '), M+70, y);
+      y += 6.4;
+    });
+  } else { doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...grey); doc.text('Sin experiencia registrada.', M, y); y += 6.4; }
+
+  y += 6; H('Notas');
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...dark);
+  doc.text(doc.splitTextToSize(v.notes || '—', W-2*M), M, y);
+
+  const now = new Date();
+  doc.setFontSize(8.5); doc.setTextColor(...grey);
+  doc.text(`Actualizado el ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`, M, 289);
+  doc.save(`ficha-${(v.name||'voluntario').toLowerCase().replace(/\s+/g,'-')}.pdf`);
+};
 
 function toast(msg){
   const el = document.createElement('div');
@@ -681,14 +890,71 @@ function toast(msg){
   setTimeout(() => el.remove(), 2200);
 }
 
+/* ---------- diálogo de la hoja ---------- */
+$('#btnCloud').onclick = () => {
+  $('#cUrl').value = cfg.url; $('#cPin').value = cfg.pin;
+  $('#cloudWrap').classList.remove('hidden');
+};
+const closeCloud = () => $('#cloudWrap').classList.add('hidden');
+$('#cloudWrap').onclick = e => { if(e.target.id === 'cloudWrap') closeCloud(); };
+$('#cSave').onclick = async () => {
+  cfg = {url: $('#cUrl').value.trim(), pin: $('#cPin').value.trim()};
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud();
+  cfg.url ? pull() : pill('Solo este dispositivo');
+};
+$('#cPush').onclick = async () => {
+  cfg = {url: $('#cUrl').value.trim(), pin: $('#cPin').value.trim()};
+  if(!cfg.url) return toast('Falta la dirección');
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud(); await push();
+};
+$('#cOff').onclick = async () => {
+  cfg = {url:'', pin:''};
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud(); pill('Solo este dispositivo');
+};
+
+/* ---------- arranque ---------- */
 (async function init(){
   const c = await lget(K_CFG);
   if(c){ try{ cfg = JSON.parse(c); }catch(e){} }
   state = await load();
   normalizar();
-  $('monthPick').value = month;
+  $('#monthPick').value = month;
+  $('#nsName').value = 'Culto de domingo';
   renderAll();
+  if(cfg.url) pull(); else pill('Solo este dispositivo');
 })();
+
+function renderAll(){
+  renderServices();
+  renderVols();
+  renderRoles();
+}
+
+$('#monthPick').onchange = e => { month = e.target.value; renderServices(); };
+
+async function push(){
+  if(!cfg.url) return toast('Configura la URL primero');
+  try{
+    await fetch(cfg.url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({pin: cfg.pin, data: state})
+    });
+    toast('✅ Datos subidos');
+  }catch(e){ toast('❌ Error al subir'); }
+}
+
+async function pull(){
+  if(!cfg.url) return toast('Configura la URL primero');
+  try{
+    const r = await fetch(cfg.url + '?pin=' + encodeURIComponent(cfg.pin) + '&t=' + Date.now());
+    const data = await r.json();
+    if(data.data){ state = data.data; normalizar(); await save(); renderAll(); toast('✅ Sincronizado'); }
+  }catch(e){ toast('❌ Error al sincronizar'); }
+}
 </script>
 </body>
 </html>
