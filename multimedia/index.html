@@ -125,4 +125,586 @@ input::placeholder{color:#5C6675}
 
 /* ---------- listas laterales ---------- */
 .list{display:flex;flex-direction:column;gap:8px}
-.item{display:flex;align-items:center;gap:10px;padding:9p
+.item{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px}
+.item .grow{flex:1;min-width:0}
+.item .sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.count{font-family:'Barlow Condensed',sans-serif;font-size:19px;min-width:22px;text-align:right;color:var(--amber)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.chip{
+  font-size:12px;padding:4px 9px;border-radius:20px;cursor:pointer;
+  border:1px solid var(--line);background:#151B24;color:var(--muted);
+}
+.chip[aria-pressed="true"]{background:rgba(232,163,61,.16);border-color:var(--amber);color:var(--amber)}
+.alert{display:flex;gap:9px;padding:10px 12px;border-radius:8px;background:rgba(255,68,54,.09);border:1px solid rgba(255,68,54,.3);font-size:13px;margin-bottom:8px}
+.empty{color:var(--muted);font-size:14px;padding:22px 6px;text-align:center}
+.hint{color:var(--muted);font-size:12.5px;margin:9px 0 0}
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+  background:#E7ECF3;color:#12161D;padding:11px 18px;border-radius:9px;font-weight:600;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);z-index:60;
+}
+.hidden{display:none!important}
+.pill{
+  font-size:12px;padding:5px 11px;border-radius:20px;
+  background:#161C25;border:1px solid var(--line);color:var(--muted);white-space:nowrap;
+}
+.pill.ok{color:var(--ok);border-color:rgba(79,178,134,.45)}
+.pill.warn{color:#FFB4AC;border-color:rgba(255,68,54,.4)}
+.pill.busy{color:var(--amber);border-color:rgba(232,163,61,.45)}
+
+/* ---------- fichas de voluntario ---------- */
+.avatar{
+  width:44px;height:44px;border-radius:50%;flex:none;overflow:hidden;
+  background:var(--panel-2);border:1px solid var(--line);
+  display:grid;place-items:center;font-family:'Barlow Condensed',sans-serif;
+  font-size:17px;color:var(--muted);
+}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.avatar.big{width:82px;height:82px;font-size:30px;cursor:pointer}
+.vcard{display:flex;align-items:center;gap:12px;padding:11px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px}
+.vcard .nm{font-weight:600}
+.vcard .sub{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.overlay{position:fixed;inset:0;background:rgba(8,11,15,.72);z-index:50;display:grid;place-items:start center;padding:22px 14px;overflow:auto}
+.sheet{width:100%;max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sheet-h{display:flex;gap:15px;align-items:center;padding:16px;background:#1D242F;border-bottom:1px solid var(--line)}
+.sheet-b{padding:16px;display:flex;flex-direction:column;gap:16px}
+.sheet-f{padding:13px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.block>h3{margin:0 0 8px;font-size:16px;font-weight:600}
+textarea{
+  background:#151B24;border:1px solid var(--line);border-radius:7px;
+  padding:9px 10px;width:100%;color:var(--text);font-family:inherit;font-size:15px;resize:vertical;min-height:74px;
+}
+.datepicker{position:absolute;display:none;background:var(--panel);border:1px solid var(--line);border-radius:9px;box-shadow:0 8px 30px rgba(0,0,0,.5);padding:11px;z-index:99;min-width:200px}
+.datepicker.show{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.datepicker button{background:var(--panel-2);border:1px solid transparent;border-radius:6px;padding:8px 4px;cursor:pointer;font-size:13px}
+.datepicker button:hover{border-color:var(--line)}
+.datepicker button.today{background:var(--amber);color:#1A1204;font-weight:600;border-color:var(--amber)}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">
+    <div class="logo" id="logoBtn">📅</div>
+    <div>
+      <h1>Escala Multimedia</h1>
+      <p id="subtitle">Equipo de transmisión</p>
+    </div>
+  </div>
+  <div class="bar-right">
+    <span class="pill" id="syncPill">Solo este dispositivo</span>
+    <input type="month" id="monthPick" style="width:auto">
+    <button class="btn" id="btnSync">🔄 Sincronizar</button>
+    <button class="btn" id="btnCloud">Hoja</button>
+    <button class="btn" id="btnWhats">Copiar para WhatsApp</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="cols">
+    <div>
+      <div class="panel">
+        <div class="panel-h"><h2>Nuevo culto</h2></div>
+        <div class="panel-b">
+          <div class="row">
+            <div class="field fld-name"><label>Nombre</label><input id="nsName" placeholder="ej. Culto de domingo"></div>
+            <div class="field"><label>Fecha</label><input type="date" id="nsDate"></div>
+            <div class="field"><label>Hora</label><input type="time" id="nsTime" value="10:00"></div>
+            <button class="btn primary" id="addServiceBtn" onclick="addService()">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab" aria-selected="false" data-tab="escala">📅 Escala</button>
+        <button class="tab" aria-selected="true" data-tab="equipo">👥 Equipo</button>
+      </div>
+
+      <div id="escala" style="display:none" class="pane">
+        <div id="svcList"></div>
+      </div>
+
+      <div id="equipo" class="pane">
+        <div id="volList"></div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="panel">
+        <div class="panel-h"><h2>Resumen</h2></div>
+        <div class="panel-b">
+          <div class="item">
+            <span>Cultos</span>
+            <span class="count" id="cntServices">0</span>
+          </div>
+          <div class="item">
+            <span>Voluntarios</span>
+            <span class="count" id="cntVols">0</span>
+          </div>
+          <div class="item">
+            <span>Funciones</span>
+            <span class="count" id="cntRoles">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><h2>Filtro</h2></div>
+        <div class="panel-b">
+          <div id="roleFilter" class="chips"></div>
+          <button class="btn sm" style="width:100%;margin-top:9px" onclick="clearFilter()">Mostrar todos</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><h2>Descargas</h2></div>
+        <div class="panel-b" style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn" style="width:100%" id="dPdf">📄 PDF Escala</button>
+          <button class="btn" style="width:100%" id="fPdf">📄 PDF Voluntario</button>
+          <button class="btn" style="width:100%" id="dJson">💾 JSON</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<!-- Diálogo de nube -->
+<div id="cloudWrap" class="overlay hidden">
+  <div class="sheet">
+    <div class="sheet-h">
+      <h2 style="margin:0">Configuración en la nube</h2>
+    </div>
+    <div class="sheet-b">
+      <div class="field">
+        <label>Dirección HTTP</label>
+        <input id="cUrl" placeholder="ej. https://ejemplo.com/escala.php">
+        <div class="hint">Debe devolver JSON con estructura {services:[], roles:[], ...}</div>
+      </div>
+      <div class="field">
+        <label>PIN (opcional)</label>
+        <input id="cPin" type="password" placeholder="1234">
+      </div>
+    </div>
+    <div class="sheet-f">
+      <button class="btn" id="cOff">Desconectar</button>
+      <button class="btn" id="cPush">Subir ahora</button>
+      <button class="btn primary" id="cSave">Conectar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+let month = new Date().toISOString().slice(0,7);
+let state = null;
+let cfg = {url:'', pin:''};
+let roleFilter = new Set();
+
+const K_CFG = 'cfg';
+const K_STATE = 'state';
+const lset = (k, v) => localStorage.setItem(k, v);
+const lget = k => localStorage.getItem(k);
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function toast(msg){
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+
+function pill(text){
+  const el = $('syncPill');
+  el.className = 'pill';
+  if(text.includes('Sincronizado')) el.className += ' ok';
+  else if(text.includes('Desconectado')) el.className += ' warn';
+  else if(text.includes('Conectando')) el.className += ' busy';
+  el.textContent = text;
+}
+
+async function load(){
+  const s = lget(K_STATE);
+  return s ? JSON.parse(s) : {
+    logo: null, subtitle: 'Equipo de transmisión',
+    roles: [
+      {id:'r1', name:'Dirección de corte'},
+      {id:'r2', name:'PTZ'},
+      {id:'r3', name:'Cámara móvil'},
+      {id:'r4', name:'Streaming (OBS)'},
+      {id:'r5', name:'Holyrics'},
+      {id:'r6', name:'Sonido'},
+      {id:'r7', name:'Fotografía'},
+      {id:'r8', name:'Redes sociales'},
+      {id:'r9', name:'Asistente de sonido'},
+      {id:'r10', name:'Iluminación'},
+      {id:'r11', name:'Diseño gráfico'},
+      {id:'r12', name:'Técnico de sonido'}
+    ],
+    services: [],
+    volunteers: []
+  };
+}
+
+async function save(){
+  await lset(K_STATE, JSON.stringify(state));
+}
+
+function roleName(id){
+  const r = state.roles.find(x => x.id === id);
+  return r ? r.name : '';
+}
+
+function volName(id){
+  const v = state.volunteers.find(x => x.id === id);
+  return v ? v.name : '';
+}
+
+function addService(){
+  const name = $('nsName').value.trim();
+  const date = $('nsDate').value;
+  const time = $('nsTime').value;
+  if(!name || !date){ toast('Completa los datos'); return; }
+  state.services.push({
+    id: Math.random().toString(36).slice(2,9),
+    name, date, time,
+    slots: {}
+  });
+  save(); $('nsName').value = ''; $('nsDate').value = ''; renderAll();
+}
+
+function delService(id){
+  if(confirm('¿Eliminar este culto?')){
+    state.services = state.services.filter(s => s.id !== id);
+    save(); renderAll();
+  }
+}
+
+function setSlot(svcId, roleId, volId){
+  const s = state.services.find(x => x.id === svcId);
+  if(s){ s.slots[roleId] = volId; save(); renderAll(); }
+}
+
+function serviceList(){
+  return state.services.filter(s => s.date.substring(0,7) === month).sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+}
+
+function addVolunteer(){
+  state.volunteers.push({
+    id: Math.random().toString(36).slice(2,9),
+    name: '', photo: '', mail: '', phone: '', birth: '', since: '',
+    roles: [], avail: [], exp: [], notes: ''
+  });
+  save();
+}
+
+function delVolunteer(id){
+  if(confirm('¿Eliminar voluntario?')){
+    state.volunteers = state.volunteers.filter(v => v.id !== id);
+    save(); renderAll();
+  }
+}
+
+function editVolunteer(id){
+  const v = state.volunteers.find(x => x.id === id);
+  if(!v) return;
+  const w = $('volWrap');
+  if(!w) {
+    const html = `<div id="volWrap" class="overlay"><div class="sheet"><div class="sheet-h"><h2>Ficha de voluntario</h2></div><div class="sheet-b"><div class="grid2"><div class="field"><label>Nombre</label><input id="vName" value="${esc(v.name)}"></div><div class="field"><label>Teléfono</label><input id="vPhone" value="${esc(v.phone || '')}"></div><div class="field"><label>Correo</label><input id="vMail" value="${esc(v.mail || '')}"></div><div class="field"><label>Cumpleaños</label><input type="date" id="vBirth" value="${v.birth || ''}"></div><div class="field"><label>En el equipo desde</label><input id="vSince" value="${esc(v.since || '')}"></div></div><div class="field"><label>Funciones</label><div class="chips" id="vRoles"></div></div><div class="field"><label>Notas</label><textarea id="vNotes">${esc(v.notes || '')}</textarea></div></div><div class="sheet-f"><button class="btn" onclick="closeVol()">Cerrar</button><button class="btn primary" onclick="saveVol('${id}')">Guardar</button></div></div></div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+    renderVolChips(id);
+  }
+}
+
+function renderVolChips(vid){
+  const v = state.volunteers.find(x => x.id === vid);
+  if(!v) return;
+  const html = state.roles.map(r => {
+    const sel = v.roles.includes(r.id);
+    return `<button class="chip" aria-pressed="${sel}" onclick="toggleRole('${vid}','${r.id}')">${esc(r.name)}</button>`;
+  }).join('');
+  const el = $('vRoles');
+  if(el) el.innerHTML = html;
+}
+
+function toggleRole(vid, rid){
+  const v = state.volunteers.find(x => x.id === vid);
+  if(!v) return;
+  const idx = v.roles.indexOf(rid);
+  if(idx >= 0) v.roles.splice(idx, 1); else v.roles.push(rid);
+  renderVolChips(vid);
+}
+
+function saveVol(id){
+  const v = state.volunteers.find(x => x.id === id);
+  if(!v) return;
+  v.name = $('vName').value.trim();
+  v.phone = $('vPhone').value.trim();
+  v.mail = $('vMail').value.trim();
+  v.birth = $('vBirth').value;
+  v.since = $('vSince').value.trim();
+  v.notes = $('vNotes').value.trim();
+  save(); closeVol(); renderAll();
+}
+
+function closeVol(){
+  const w = $('volWrap');
+  if(w) w.remove();
+}
+
+function normalizar(){
+  if(!state.roles) state.roles = [];
+  if(!state.services) state.services = [];
+  if(!state.volunteers) state.volunteers = [];
+}
+
+function renderServices(){
+  const list = serviceList();
+  const html = list.map(s=>{
+    const d = parse(s.date);
+    const slotsHtml = state.roles.map(r=>{
+      const vid = s.slots[r.id] || '';
+      const gap = vid ? '' : ' gap';
+      const opts = `<option value="">-- sin asignar --</option>` + state.volunteers.map(v => `<option value="${v.id}" ${vid === v.id ? 'selected' : ''}>${esc(v.name)}</option>`).join('');
+      return `<div class="slot${gap}"><span class="dot"></span><span class="rname">${esc(r.name)}</span><select onchange="setSlot('${s.id}','${r.id}',this.value)">${opts}</select></div>`;
+    }).join('');
+    return `<div class="svc"><div class="svc-h"><div class="daychip"><div class="d">${d.getDate()}</div><div class="m">${DIAS[d.getDay()].slice(0,3)}</div></div><div class="svc-t"><div class="name">${esc(s.name)}</div><div class="meta">${DIAS[d.getDay()]} · ${s.time}</div></div><button class="btn sm danger" onclick="delService('${s.id}')">✕</button></div><div class="slots">${slotsHtml}</div></div>`;
+  }).join('');
+  const pane = $('escala');
+  if(pane) pane.innerHTML = html || '<div class="empty">Sin cultos en este mes</div>';
+}
+
+function renderVolunteers(){
+  const html = state.volunteers.map(v=>{
+    const rolesTags = v.roles.map(roleName).filter(Boolean).join(' · ') || '—';
+    return `<div class="vcard" onclick="editVolunteer('${v.id}')"><div class="avatar">${v.name[0] || '?'}</div><div class="grow"><div class="nm">${esc(v.name || 'Sin nombre')}</div><div class="sub">${rolesTags}</div></div><button class="btn sm danger" onclick="event.stopPropagation(); delVolunteer('${v.id}')">✕</button></div>`;
+  }).join('');
+  const pane = $('volList');
+  if(pane) pane.innerHTML = `<div class="list">${html}</div><button class="btn" style="width:100%;margin-top:12px" onclick="addVolunteer(); renderAll()">+ Nuevo voluntario</button>`;
+}
+
+function renderAll(){
+  renderServices();
+  renderVolunteers();
+  $('cntServices').textContent = state.services.length;
+  $('cntVols').textContent = state.volunteers.length;
+  $('cntRoles').textContent = state.roles.length;
+  $('subtitle').textContent = state.subtitle;
+}
+
+function clearFilter(){
+  roleFilter.clear(); renderAll();
+}
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.onclick = function(){
+    const tab = this.getAttribute('data-tab');
+    document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', b === this));
+    document.querySelectorAll('.pane').forEach(p => p.style.display = 'none');
+    const pane = $(tab);
+    if(pane) pane.style.display = 'block';
+  };
+});
+
+$('monthPick').onchange = e => { month = e.target.value; renderAll(); };
+
+$('btnWhats').onclick = () => {
+  const list = serviceList();
+  let msg = '📅 *ESCALA MULTIMEDIA* 📅\n\n';
+  list.forEach(s=>{
+    const d = parse(s.date);
+    msg += `*${s.name}* (${DIAS[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}, ${s.time})\n`;
+    state.roles.forEach(r=>{
+      const vid = s.slots[r.id];
+      msg += `  • ${r.name}: ${vid ? volName(vid) : '_por confirmar_'}\n`;
+    });
+    msg += '\n';
+  });
+  navigator.clipboard.writeText(msg).then(() => toast('✅ Copiado a portapapeles')).catch(() => toast('❌ Error'));
+};
+
+/* ---------- diálogo de la hoja --- SINCRONIZACIÓN GOOGLE SHEETS ---------- */
+$('#btnSync').onclick = async () => {
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzkG7Xj1wqxwOlNg69fkjUKfQ_41B2JsfUuNbnTbfWV4eg0Grt1iiemB5QaHo3C_vyL4A/exec';
+  try {
+    const resp = await fetch(SHEETS_URL);
+    const data = await resp.json();
+    toast('✅ Sincronizado con Google Sheets');
+    console.log('Datos de Sheets:', data);
+  } catch (e) {
+    toast('❌ Error sincronizando');
+  }
+};
+
+$('#btnCloud').onclick = () => {
+  $('#cUrl').value = cfg.url; $('#cPin').value = cfg.pin;
+  $('#cloudWrap').classList.remove('hidden');
+};
+const closeCloud = () => $('#cloudWrap').classList.add('hidden');
+$('#cloudWrap').onclick = e => { if(e.target.id === 'cloudWrap') closeCloud(); };
+$('#cSave').onclick = async () => {
+  cfg = {url: $('#cUrl').value.trim(), pin: $('#cPin').value.trim()};
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud();
+  cfg.url ? pull() : pill('Solo este dispositivo');
+};
+$('#cPush').onclick = async () => {
+  cfg = {url: $('#cUrl').value.trim(), pin: $('#cPin').value.trim()};
+  if(!cfg.url) return toast('Falta la dirección');
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud(); await push();
+};
+$('#cOff').onclick = async () => {
+  cfg = {url:'', pin:''};
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud(); pill('Solo este dispositivo');
+};
+
+async function push(){
+  if(!cfg.url) return;
+  pill('Conectando...');
+  try{
+    const r = await fetch(cfg.url, {method:'POST', body: JSON.stringify({data:state, pin:cfg.pin})});
+    if(r.ok){ pill('Sincronizado'); toast('✅ Subido'); }
+    else { pill('Desconectado'); toast('❌ Fallo en el servidor'); }
+  }catch(e){
+    pill('Desconectado'); toast('❌ Error de conexión');
+  }
+}
+
+async function pull(){
+  if(!cfg.url) return;
+  try{
+    const r = await fetch(cfg.url + (cfg.pin ? '?pin='+cfg.pin : ''));
+    if(r.ok){
+      const d = await r.json();
+      if(d && d.data){ Object.assign(state, d.data); await save(); renderAll(); }
+      pill('Sincronizado');
+    }else{ pill('Desconectado'); }
+  }catch(e){
+    pill('Desconectado');
+  }
+}
+
+$('#dPdf').onclick = () => {
+  const list = serviceList();
+  if(!list.length) return toast('Sin cultos');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'mm', format:'a4'});
+  const W = 210, M = 16, dark = [18,22,29], amber = [200,135,40], grey = [125,135,150], line = [222,226,232];
+
+  const header = () => {
+    doc.setFillColor(...dark); doc.rect(0, 0, W, 32, 'F');
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(17);
+    doc.text('Escala de multimedia', M, 15);
+    doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(200,205,215);
+    doc.text(`${MESES[parseInt(month.split('-')[1])-1]} ${month.split('-')[0]} · ${state.subtitle}`, M, 22);
+    doc.setFillColor(...amber); doc.rect(0, 32, W, 1.2, 'F');
+    return 44;
+  };
+
+  let cy = header();
+  const rowH = 6.4;
+
+  list.forEach(s => {
+    const d = parse(s.date);
+    const blockH = 15 + state.roles.length * rowH + 7;
+    if(cy + blockH > 280){ doc.addPage(); cy = header(); }
+
+    doc.setFillColor(242,244,247); doc.roundedRect(M, cy, W-2*M, 11, 1.6, 1.6, 'F');
+    doc.setTextColor(...dark); doc.setFont('helvetica','bold'); doc.setFontSize(11.5);
+    doc.text(`${d.getDate()} de ${MESES[d.getMonth()]}`, M+4, cy+7.4);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...grey);
+    doc.text(`${DIAS[d.getDay()]}  ·  ${s.time}  ·  ${s.name}`, M+42, cy+7.4);
+    cy += 15;
+
+    state.roles.forEach((r,i)=>{
+      if(i){ doc.setDrawColor(...line); doc.setLineWidth(.2); doc.line(M+4, cy-3.1, W-M-4, cy-3.1); }
+      doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(...grey);
+      doc.text(r.name, M+4, cy);
+      const v = s.slots[r.id];
+      doc.setFont('helvetica', v ? 'bold' : 'normal');
+      doc.setTextColor(...(v ? dark : [190,80,70]));
+      doc.text(v ? volName(v) : 'por confirmar', M+62, cy);
+      cy += rowH;
+    });
+    cy += 7;
+  });
+
+  const pages = doc.internal.getNumberOfPages();
+  for(let p=1; p<=pages; p++){
+    doc.setPage(p);
+    doc.setFontSize(8.5); doc.setTextColor(...grey);
+    const now = new Date();
+    doc.text(`Actualizado ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`, M, 289);
+    doc.text(`${p}/${pages}`, W-M, 289, {align:'right'});
+  }
+
+  doc.save(`escala-multimedia-${month}.pdf`);
+};
+
+$('#fPdf').onclick = () => {
+  const v = state.volunteers[0];
+  if(!v) return toast('Sin voluntarios');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'mm', format:'a4'});
+  const W = 210, M = 16, dark = [18,22,29], amber = [200,135,40], grey = [125,135,150], line = [222,226,232];
+
+  doc.setFillColor(...dark); doc.rect(0, 0, W, 46, 'F');
+  doc.setFillColor(...amber); doc.rect(0, 46, W, 1.2, 'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(19);
+  doc.text(v.name || 'Sin nombre', M, 22);
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(200,205,215);
+  doc.text(`Ficha de voluntario · ${state.subtitle}`, M, 30);
+
+  let y = 60;
+  const H = t => { doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...dark); doc.text(t, M, y); y += 3;
+    doc.setDrawColor(...line); doc.setLineWidth(.3); doc.line(M, y, W-M, y); y += 7; };
+  const P = (k, val) => {
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...grey); doc.text(k, M, y);
+    doc.setTextColor(...dark); doc.setFont('helvetica','bold');
+    doc.text(String(val || '—'), M+46, y); y += 6.6;
+  };
+
+  H('Contacto');
+  P('Teléfono', v.phone); P('Correo', v.mail);
+  P('Cumpleaños', v.birth ? (() => { const d = parse(v.birth); return `${d.getDate()} de ${MESES[d.getMonth()]}`; })() : '');
+  P('En el equipo desde', v.since);
+
+  y += 5; H('Funciones');
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...dark);
+  doc.text(doc.splitTextToSize(v.roles.map(roleName).filter(Boolean).join(' · ') || 'Sin funciones marcadas', W-2*M), M, y);
+
+  doc.save(`ficha-${(v.name||'voluntario').toLowerCase().replace(/\s+/g,'-')}.pdf`);
+};
+
+$('#dJson').onclick = () => {
+  const json = JSON.stringify(state, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `escala-${month}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+};
+
+/* ---------- arranque ---------- */
+(async function init(){
+  const c = await lget(K_CFG);
+  if(c){ try{ cfg = JSON.parse(c); }catch(e){} }
+  state = await load();
+  normalizar();
+  $('#monthPick').value = month;
+  $('#nsName').value = 'Culto de domingo';
+  renderAll();
+  if(cfg.url) pull(); else pill('Solo este dispositivo');
+})();
+</script>
+</body>
+</html>
