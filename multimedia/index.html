@@ -9,46 +9,112 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-:root{--bg:#12161D;--panel:#1A202A;--panel-2:#212936;--line:#2C3644;--text:#E7ECF3;--muted:#8C97A7;--amber:#E8A33D;--tally:#FF4436;--ok:#4FB286;--radius:10px}
+:root{
+  --bg:#12161D;
+  --panel:#1A202A;
+  --panel-2:#212936;
+  --line:#2C3644;
+  --text:#E7ECF3;
+  --muted:#8C97A7;
+  --amber:#E8A33D;
+  --tally:#FF4436;
+  --ok:#4FB286;
+  --radius:10px;
+}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
-h1,h2,h3{font-family:'Barlow Condensed','Inter',sans-serif;letter-spacing:.01em}
-.bar{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,#161C25,#12161D);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 16px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:11px}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.cond{font-family:'Barlow Condensed','Inter',sans-serif;letter-spacing:.01em}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- barra superior: mesa de control ---------- */
+.bar{
+  position:sticky;top:0;z-index:30;
+  background:linear-gradient(180deg,#161C25,#12161D);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:14px;
+  padding:10px 16px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.logo{
+  width:42px;height:42px;border-radius:9px;flex:none;
+  background:var(--panel-2);border:1px solid var(--line);
+  display:grid;place-items:center;overflow:hidden;cursor:pointer;
+  color:var(--muted);font-size:10px;text-align:center;line-height:1.1;padding:3px;
+}
+.logo img{width:100%;height:100%;object-fit:contain}
 .brand h1{font-size:23px;margin:0;font-weight:600;line-height:1}
 .brand p{margin:2px 0 0;font-size:12px;color:var(--muted)}
 .bar-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.btn{background:var(--panel-2);border:1px solid var(--line);color:var(--text);padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:500;transition:border-color .15s,background .15s}
+
+.btn{
+  background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+  padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:500;
+  transition:border-color .15s,background .15s;
+}
 .btn:hover{border-color:#3E4A5C;background:#26303E}
 .btn.primary{background:var(--amber);border-color:var(--amber);color:#1A1204;font-weight:600}
 .btn.primary:hover{background:#F0B356}
 .btn.ghost{background:transparent}
 .btn.sm{padding:6px 10px;font-size:13px}
 .btn.danger:hover{border-color:var(--tally);color:#FF7C71}
+
+/* ---------- pestañas ---------- */
 .tabs{display:flex;gap:4px;padding:0 16px;border-bottom:1px solid var(--line);background:#141922}
-.tab{background:none;border:none;border-bottom:2px solid transparent;padding:11px 14px;cursor:pointer;color:var(--muted);font-weight:500}
+.tab{
+  background:none;border:none;border-bottom:2px solid transparent;
+  padding:11px 14px;cursor:pointer;color:var(--muted);font-weight:500;
+}
 .tab[aria-selected="true"]{color:var(--text);border-bottom-color:var(--amber)}
+
 .wrap{max-width:1180px;margin:0 auto;padding:20px 16px 90px}
+.cols{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:1fr}}
+
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}
 .panel-h{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
 .panel-h h2{margin:0;font-size:18px;font-weight:600}
 .panel-b{padding:16px}
+
+/* ---------- generador / controles ---------- */
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
 .field{display:flex;flex-direction:column;gap:5px;min-width:0}
 .field label{font-size:12px;color:var(--muted)}
-input,select{background:#151B24;border:1px solid var(--line);border-radius:7px;padding:9px 10px;min-width:0;width:100%}
+input,select{
+  background:#151B24;border:1px solid var(--line);border-radius:7px;
+  padding:9px 10px;min-width:0;width:100%;
+}
 input::placeholder{color:#5C6675}
 .fld-name{flex:1 1 320px;min-width:250px}
 .fld-name input{font-size:16px;padding:11px 12px}
+@media (max-width:760px){
+  .fld-name{flex-basis:100%;width:100%}
+  .row .field{flex:1 1 130px}
+}
+
+/* ---------- tarjeta de culto ---------- */
 .svc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
 .svc-h{display:flex;gap:14px;align-items:center;padding:13px 15px;background:#1D242F;border-bottom:1px solid var(--line)}
-.daychip{width:54px;flex:none;text-align:center;border-radius:8px;padding:5px 0;background:var(--panel-2);border:1px solid var(--line)}
+.daychip{
+  width:54px;flex:none;text-align:center;border-radius:8px;padding:5px 0;
+  background:var(--panel-2);border:1px solid var(--line);
+}
 .daychip .d{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:600;line-height:1}
 .daychip .m{font-size:10px;color:var(--muted);text-transform:lowercase}
 .svc-t{min-width:0;flex:1}
 .svc-t .name{font-weight:600}
 .svc-t .meta{font-size:13px;color:var(--muted)}
+.svc-acts{display:flex;gap:6px;flex-wrap:wrap}
+
 .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1px;background:var(--line)}
 .slot{background:var(--panel);padding:11px 15px;display:flex;align-items:center;gap:10px}
 .slot .rname{font-size:13px;color:var(--muted);width:104px;flex:none}
@@ -56,281 +122,7 @@ input::placeholder{color:#5C6675}
 .slot.gap select{border-color:#5C2620;background:#1F1615}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none}
 .slot.gap .dot{background:var(--tally)}
-.empty{color:var(--muted);font-size:14px;padding:22px 6px;text-align:center}
-.hint{color:var(--muted);font-size:12.5px;margin:9px 0 0}
-.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#E7ECF3;color:#12161D;padding:11px 18px;border-radius:9px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.5);z-index:60}
-.hidden{display:none!important}
-.tab-pane{display:none}
-.tab-pane.active{display:block}
-</style>
-</head>
-<body>
 
-<header class="bar">
-  <div class="brand">
-    <div style="font-size:32px">📅</div>
-    <div>
-      <h1>Escala Multimedia</h1>
-      <p>Sincronizado con Google Sheets</p>
-    </div>
-  </div>
-  <div class="bar-right">
-    <button class="btn ghost" id="btnSync">🔄 Sincronizar</button>
-    <button class="btn ghost" id="btnCopy">📋 Copiar WhatsApp</button>
-    <button class="btn ghost" id="btnPdf">📄 PDF</button>
-    <button class="btn ghost" onclick="window.location.href='/'">← Volver</button>
-  </div>
-</header>
-
-<main class="wrap">
-  <div class="tabs">
-    <button class="tab active" aria-selected="true" data-tab="escala">📅 Escala</button>
-    <button class="tab" data-tab="funciones">⚙️ Funciones</button>
-  </div>
-
-  <div id="escala" class="tab-pane active">
-    <div class="panel">
-      <div class="panel-h"><h2>Nuevo culto</h2></div>
-      <div class="panel-b">
-        <div class="row">
-          <div class="field fld-name"><label>Nombre</label><input id="nsName" placeholder="ej. Culto de domingo"></div>
-          <div class="field"><label>Fecha</label><input type="date" id="nsDate"></div>
-          <div class="field"><label>Hora</label><input type="time" id="nsTime" value="10:00"></div>
-          <button class="btn primary" onclick="addService()">+ Agregar</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-h">
-        <h2 id="mTitle">Escala</h2>
-        <input type="month" id="monthPick" style="margin-left:auto;width:auto">
-      </div>
-      <div class="panel-b" id="svcList"></div>
-    </div>
-  </div>
-
-  <div id="funciones" class="tab-pane">
-    <div class="panel">
-      <div class="panel-h"><h2>Funciones disponibles</h2></div>
-      <div class="panel-b" id="roleList"></div>
-    </div>
-  </div>
-</main>
-
-<script>
-const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkG7Xj1wqxwOlNg69fkjUKfQ_41B2JsfUuNbnTbfWV4eg0Grt1iiemB5QaHo3C_vyL4A/exec';
-
-let state = null;
-let month = new Date().toISOString().slice(0,7);
-
-const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
-const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-
-async function loadFromSheets() {
-  try {
-    const resp = await fetch(APPS_SCRIPT_URL);
-    const data = await resp.json();
-    toast('✅ Datos cargados');
-    return data;
-  } catch (e) {
-    toast('❌ Error cargando datos');
-    return [];
-  }
-}
-
-function initState(data) {
-  const roles = [
-    {id:'r1', name:'Dirección de corte'},
-    {id:'r2', name:'PTZ'},
-    {id:'r3', name:'Cámara móvil'},
-    {id:'r4', name:'Streaming (OBS)'},
-    {id:'r5', name:'Holyrics'},
-    {id:'r6', name:'Sonido'},
-    {id:'r7', name:'Fotografía'},
-    {id:'r8', name:'Redes sociales'},
-    {id:'r9', name:'Asistente de sonido'},
-    {id:'r10', name:'Iluminación'},
-    {id:'r11', name:'Diseño gráfico'},
-    {id:'r12', name:'Técnico de sonido'}
-  ];
-  
-  const services = [];
-  data.forEach(row => {
-    if (row.Fecha) {
-      const slots = {};
-      roles.forEach((r, i) => {
-        const key = Object.keys(row)[i + 3];
-        if (key) slots[r.id] = row[key] || '';
-      });
-      services.push({
-        id: Math.random().toString(36).slice(2,9),
-        name: row['Nombre Culto'] || '',
-        date: row.Fecha || '',
-        time: row.Hora || '10:00',
-        slots: slots
-      });
-    }
-  });
-  
-  return {roles, services, logo:null, subtitle:'Equipo de transmisión'};
-}
-
-async function saveToSheets() {
-  try {
-    const body = JSON.stringify(state.services);
-    await fetch(APPS_SCRIPT_URL, {method: 'POST', body: body});
-    toast('💾 Guardado');
-  } catch (e) {
-    toast('❌ Error guardando');
-  }
-}
-
-function switchTab(tabName) {
-  document.querySelectorAll('.tab').forEach(t => t.removeAttribute('aria-selected'));
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  event.target.setAttribute('aria-selected', 'true');
-  document.getElementById(tabName).classList.add('active');
-  renderAll();
-}
-
-function addService() {
-  const name = document.getElementById('nsName').value.trim();
-  const date = document.getElementById('nsDate').value;
-  const time = document.getElementById('nsTime').value;
-  if(!name || !date) return toast('Completa los datos');
-  state.services.push({id:Math.random().toString(36).slice(2,9), name, date, time, slots:{}});
-  saveToSheets();
-  document.getElementById('nsName').value = '';
-  document.getElementById('nsDate').value = '';
-  renderServices();
-}
-
-function monthServices() {
-  return state.services.filter(s => s.date.startsWith(month)).sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
-}
-
-function renderServices() {
-  const list = monthServices();
-  document.getElementById('mTitle').textContent = month ? MESES[Number(month.split('-')[1])-1] : 'Mes';
-  if(!list.length){ document.getElementById('svcList').innerHTML = '<div class="empty">No hay cultos</div>'; return; }
-
-  let html = '';
-  list.forEach(s => {
-    const d = parse(s.date);
-    const slots = state.roles.map(r => {
-      const vid = s.slots[r.id] || '';
-      const gap = vid ? '' : ' gap';
-      return `<div class="slot${gap}"><span class="dot"></span><span class="rname">${esc(r.name)}</span><select onchange="setSlot('${s.id}','${r.id}',this.value)"><option value="">-- Asignar --</option><option value="${vid}" selected>${vid}</option></select></div>`;
-    }).join('');
-    html += `<div class="svc"><div class="svc-h"><div class="daychip"><div class="d">${d.getDate()}</div><div class="m">${DIAS[d.getDay()].slice(0,3)}</div></div><div class="svc-t"><div class="name">${esc(s.name)}</div><div class="meta">${DIAS[d.getDay()]} · ${s.time}</div></div><button class="btn sm danger" onclick="delService('${s.id}')">✕</button></div><div class="slots">${slots}</div></div>`;
-  });
-  document.getElementById('svcList').innerHTML = html;
-}
-
-function setSlot(svcId, roleId, volId) {
-  const svc = state.services.find(s => s.id === svcId);
-  if(svc) { svc.slots[roleId] = volId; saveToSheets(); renderServices(); }
-}
-
-function delService(id) {
-  if(confirm('¿Eliminar?')){
-    state.services = state.services.filter(s => s.id !== id);
-    saveToSheets();
-    renderServices();
-  }
-}
-
-function renderRoles() {
-  const html = state.roles.map(r => `<div style="padding:8px;background:var(--panel-2);border-radius:8px;margin-bottom:6px">${esc(r.name)}</div>`).join('');
-  document.getElementById('roleList').innerHTML = html;
-}
-
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', function(){
-    switchTab(this.getAttribute('data-tab'));
-  });
-});
-
-document.getElementById('monthPick').onchange = e => { month = e.target.value; renderServices(); };
-
-document.getElementById('btnSync').onclick = async () => {
-  const data = await loadFromSheets();
-  state = initState(data);
-  renderAll();
-};
-
-document.getElementById('btnCopy').onclick = () => {
-  const list = monthServices();
-  let t = '📅 *ESCALA MULTIMEDIA* 📅\n\n';
-  list.forEach(s=>{
-    const d = parse(s.date);
-    t += `📍 *${s.name}*\n${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}\n\n`;
-    state.roles.forEach(r=>{
-      t += `  • ${r.name}: ${s.slots[r.id] || 'por confirmar'}\n`;
-    });
-    t += '\n';
-  });
-  navigator.clipboard.writeText(t).then(() => toast('✅ Copiado')).catch(() => toast('Error'));
-};
-
-document.getElementById('btnPdf').onclick = () => {
-  const list = monthServices();
-  if(!list.length) return toast('Sin cultos');
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const W = 210, M = 14, dark = [18,22,29], amber = [200,135,40];
-  
-  doc.setFillColor(...dark);
-  doc.rect(0, 0, W, 20, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(16);
-  doc.text('Escala Multimedia', M, 12);
-  doc.setFillColor(...amber);
-  doc.rect(0, 20, W, 1, 'F');
-  
-  let y = 30;
-  list.forEach(s => {
-    const d = parse(s.date);
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(11);
-    doc.text(`${d.getDate()} de ${MESES[d.getMonth()]} - ${s.name}`, M, y);
-    y += 7;
-    state.roles.forEach(r => {
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(9);
-      doc.text(`${r.name}: ${s.slots[r.id] || 'por confirmar'}`, M+3, y);
-      y += 5;
-    });
-    y += 3;
-  });
-  
-  doc.save('escala.pdf');
-};
-
-function renderAll() {
-  renderServices();
-  renderRoles();
-}
-
-function toast(msg){
-  const el = document.createElement('div');
-  el.className = 'toast';
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 2200);
-}
-
-(async () => {
-  const data = await loadFromSheets();
-  state = initState(data);
-  document.getElementById('monthPick').value = month;
-  renderAll();
-})();
-</script>
-</body>
-</html>
+/* ---------- listas laterales ---------- */
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;align-items:center;gap:10px;padding:9p
