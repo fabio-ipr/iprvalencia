@@ -361,6 +361,7 @@ async function lget(k){
   try{ return localStorage.getItem(k); }catch(e){}
   return null;
 }
+
 async function lset(k, v){
   try{ if(window.storage) await window.storage.set(k, v); }catch(e){}
   try{ localStorage.setItem(k, v); }catch(e){}
@@ -439,25 +440,47 @@ function demoData(){
     {id:'r6', name:'Sonido'},
     {id:'r7', name:'Fotografía'}
   ];
+  const V = (id,name,roles,phone,mail,since,avail,exp,notes) =>
+    ({id, name, roles, phone, mail, since, birth:'', photo:null, avail, exp, notes});
   const team = [
-    {id:'v1',name:'Marcos Ferreira',roles:['r1','r2','r4'],phone:'+34 611 22 33 44',mail:'marcos.f@correo.com',since:'marzo de 2021',birth:'',photo:null,avail:[0,3],exp:[{place:'Iglesia Central de Vigo',role:'Dirección de corte',time:'3 años'},{place:'Productora Vía Norte',role:'Cámara de eventos',time:'1 año'}],notes:'Conoce bien el ATEM. Puede formar a gente nueva en corte.'},
-    {id:'v2',name:'Lucía Ramos',roles:['r3','r7'],phone:'+34 622 33 44 55',mail:'lucia.ramos@correo.com',since:'enero de 2023',birth:'',photo:null,avail:[0],exp:[{place:'Estudio Luz Marina',role:'Fotografía de eventos',time:'2 años'}],notes:'Prefiere cámara móvil en la primera parte del culto.'},
-    {id:'v3',name:'Iván Delgado',roles:['r5','r4'],phone:'+34 633 44 55 66',mail:'ivan.d@correo.com',since:'septiembre de 2024',birth:'',photo:null,avail:[0,3],exp:[{place:'Campamento juvenil Betel',role:'Proyección y letras',time:'2 veranos'}],notes:''},
-    {id:'v4',name:'Nerea Castillo',roles:['r5','r7'],phone:'+34 644 55 66 77',mail:'nerea.c@correo.com',since:'mayo de 2025',birth:'',photo:null,avail:[0],exp:[],notes:'Nueva en Holyrics, aún acompañada.'},
-    {id:'v5',name:'Rubén Alcántara',roles:['r6','r4'],phone:'+34 655 66 77 88',mail:'ruben.a@correo.com',since:'febrero de 2020',birth:'',photo:null,avail:[0,3],exp:[{place:'Sala Arenal',role:'Técnico de sonido en directo',time:'5 años'}],notes:'Referencia para la X32.'},
-    {id:'v6',name:'Sara Montoya',roles:['r3','r5'],phone:'+34 666 77 88 99',mail:'sara.m@correo.com',since:'octubre de 2023',birth:'',photo:null,avail:[3],exp:[],notes:'Solo puede entre semana durante el curso.'},
-    {id:'v7',name:'Diego Pinheiro',roles:['r1','r2','r6'],phone:'+34 677 88 99 00',mail:'diego.p@correo.com',since:'agosto de 2019',birth:'',photo:null,avail:[0,3],exp:[{place:'Igreja Nova Vida, Lisboa',role:'Dirección de transmisión',time:'4 años'}],notes:'Segundo director de corte.'},
-    {id:'v8',name:'Carla Ibáñez',roles:['r7','r3'],phone:'+34 688 99 00 11',mail:'carla.i@correo.com',since:'abril de 2022',birth:'',photo:null,avail:[0],exp:[{place:'Revista local Enfoque',role:'Reportaje fotográfico',time:'2 años'}],notes:''}
+    V('v1','Marcos Ferreira',['r1','r2','r4'],'+34 611 22 33 44','marcos.f@correo.com','marzo de 2021',[0,3],
+      [{place:'Iglesia Central de Vigo',role:'Dirección de corte',time:'3 años'},{place:'Productora Vía Norte',role:'Cámara de eventos',time:'1 año'}],
+      'Conoce bien el ATEM. Puede formar a gente nueva en corte.'),
+    V('v2','Lucía Ramos',['r3','r7'],'+34 622 33 44 55','lucia.ramos@correo.com','enero de 2023',[0],
+      [{place:'Estudio Luz Marina',role:'Fotografía de eventos',time:'2 años'}],
+      'Prefiere cámara móvil en la primera parte del culto.'),
+    V('v3','Iván Delgado',['r5','r4'],'+34 633 44 55 66','ivan.d@correo.com','septiembre de 2024',[0,3],
+      [{place:'Campamento juvenil Betel',role:'Proyección y letras',time:'2 veranos'}], ''),
+    V('v4','Nerea Castillo',['r5','r7'],'+34 644 55 66 77','nerea.c@correo.com','mayo de 2025',[0],
+      [], 'Nueva en Holyrics, aún acompañada.'),
+    V('v5','Rubén Alcántara',['r6','r4'],'+34 655 66 77 88','ruben.a@correo.com','febrero de 2020',[0,3],
+      [{place:'Sala Arenal',role:'Técnico de sonido en directo',time:'5 años'}],
+      'Referencia para la X32.'),
+    V('v6','Sara Montoya',['r3','r5'],'+34 666 77 88 99','sara.m@correo.com','octubre de 2023',[3],
+      [], 'Solo puede entre semana durante el curso.'),
+    V('v7','Diego Pinheiro',['r1','r2','r6'],'+34 677 88 99 00','diego.p@correo.com','agosto de 2019',[0,3],
+      [{place:'Igreja Nova Vida, Lisboa',role:'Dirección de transmisión',time:'4 años'}],
+      'Segundo director de corte.'),
+    V('v8','Carla Ibáñez',['r7','r3'],'+34 688 99 00 11','carla.i@correo.com','abril de 2022',[0],
+      [{place:'Revista local Enfoque',role:'Reportaje fotográfico',time:'2 años'}], '')
   ];
-  const today = new Date(), y = today.getFullYear(), m = today.getMonth();
+  const today = new Date();
+  const y = today.getFullYear(), m = today.getMonth();
   const services = [];
   const d = new Date(y, m, 1);
   while(d.getMonth() === m){
-    if(d.getDay() === 0) services.push({id:uid(), name:'Culto de domingo', date:iso(d), time:'10:00', slots:{}});
-    if(d.getDay() === 3) services.push({id:uid(), name:'Culto de oración', date:iso(d), time:'20:00', slots:{}});
+    if(d.getDay() === 0){
+      services.push({id:uid(), name:'Culto de domingo', date:iso(d), time:'10:00', slots:{}});
+    }
+    if(d.getDay() === 3){
+      services.push({id:uid(), name:'Culto de oración', date:iso(d), time:'20:00', slots:{}});
+    }
     d.setDate(d.getDate()+1);
   }
-  const rota = {r1:['v1','v7'], r2:['v7','v1'], r3:['v2','v6','v8'], r4:['v3','v5','v1'],r5:['v4','v6','v3'], r6:['v5','v7'], r7:['v8','v2','v4']};
+  const rota = {
+    r1:['v1','v7'], r2:['v7','v1'], r3:['v2','v6','v8'], r4:['v3','v5','v1'],
+    r5:['v4','v6','v3'], r6:['v5','v7'], r7:['v8','v2','v4']
+  };
   services.forEach((s,i)=>{ roles.forEach(r=>{ const p = rota[r.id]; s.slots[r.id] = p[i % p.length]; }); });
   return {roles, team, services, logo:null, subtitle:'Equipo de transmisión'};
 }
@@ -468,7 +491,10 @@ async function load(){
   return demoData();
 }
 
-const monthServices = () => state.services.filter(s => s.date.startsWith(month)).sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+const monthServices = () =>
+  state.services.filter(s => s.date.startsWith(month))
+                .sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+
 const volName = id => (state.team.find(v => v.id === id) || {}).name || '';
 const roleName = id => (state.roles.find(r => r.id === id) || {}).name || '';
 
@@ -486,15 +512,46 @@ function renderServices(){
       const val = s.slots[r.id] || '';
       const opts = state.team.filter(v => v.roles.includes(r.id))
         .map(v => `<option value="${v.id}" ${val===v.id?'selected':''}>${esc(v.name)}</option>`).join('');
-      return `<div class="slot ${val?'':'gap'}"><span class="dot"></span><span class="rname">${esc(r.name)}</span><select data-svc="${s.id}" data-role="${r.id}"><option value="">— sin asignar —</option>${opts}</select></div>`;
+      return `<div class="slot ${val?'':'gap'}">
+        <span class="dot"></span>
+        <span class="rname">${esc(r.name)}</span>
+        <select data-svc="${s.id}" data-role="${r.id}">
+          <option value="">— sin asignar —</option>${opts}
+        </select></div>`;
     }).join('');
-    return `<article class="svc"><div class="svc-h"><div class="daychip"><div class="d">${d.getDate()}</div><div class="m">${DIAS[d.getDay()].slice(0,3)}</div></div><div class="svc-t"><div class="name">${esc(s.name)}</div><div class="meta">${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}</div></div><div class="svc-acts"><button class="btn sm ghost" data-wa1="${s.id}">WhatsApp</button><button class="btn sm ghost" data-pdf1="${s.id}">PDF</button><button class="btn sm ghost danger" data-del="${s.id}">Quitar</button></div></div><div class="slots">${slots}</div></article>`;
+    return `<article class="svc">
+      <div class="svc-h">
+        <div class="daychip"><div class="d">${d.getDate()}</div><div class="m">${DIAS[d.getDay()].slice(0,3)}</div></div>
+        <div class="svc-t">
+          <div class="name">${esc(s.name)}</div>
+          <div class="meta">${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}</div>
+        </div>
+        <div class="svc-acts">
+          <button class="btn sm ghost" data-wa1="${s.id}">WhatsApp</button>
+          <button class="btn sm ghost" data-pdf1="${s.id}">PDF</button>
+          <button class="btn sm ghost danger" data-del="${s.id}">Quitar</button>
+        </div>
+      </div>
+      <div class="slots">${slots}</div>
+    </article>`;
   }).join('');
 
-  box.querySelectorAll('select[data-svc]').forEach(sel=>{ sel.onchange = () => { const s = state.services.find(x => x.id === sel.dataset.svc); s.slots[sel.dataset.role] = sel.value; save(); renderServices(); renderReview(); renderLoad(); }; });
-  box.querySelectorAll('[data-del]').forEach(b=>{ b.onclick = () => { state.services = state.services.filter(s => s.id !== b.dataset.del); save(); renderAll(); }; });
-  box.querySelectorAll('[data-pdf1]').forEach(b=>{ b.onclick = () => makePDF(state.services.filter(s => s.id === b.dataset.pdf1)); });
-  box.querySelectorAll('[data-wa1]').forEach(b=>{ b.onclick = () => copyText(svcText(state.services.find(s => s.id === b.dataset.wa1))); });
+  box.querySelectorAll('select[data-svc]').forEach(sel=>{
+    sel.onchange = () => {
+      const s = state.services.find(x => x.id === sel.dataset.svc);
+      s.slots[sel.dataset.role] = sel.value;
+      save(); renderServices(); renderReview(); renderLoad();
+    };
+  });
+  box.querySelectorAll('[data-del]').forEach(b=>{
+    b.onclick = () => { state.services = state.services.filter(s => s.id !== b.dataset.del); save(); renderAll(); };
+  });
+  box.querySelectorAll('[data-pdf1]').forEach(b=>{
+    b.onclick = () => makePDF(state.services.filter(s => s.id === b.dataset.pdf1));
+  });
+  box.querySelectorAll('[data-wa1]').forEach(b=>{
+    b.onclick = () => copyText(svcText(state.services.find(s => s.id === b.dataset.wa1)));
+  });
 }
 
 function renderReview(){
@@ -504,77 +561,410 @@ function renderReview(){
     const missing = state.roles.filter(r => !s.slots[r.id]).map(r => r.name);
     if(missing.length) out.push(`${tag}: falta ${missing.join(', ')}`);
     const seen = {};
-    state.roles.forEach(r=>{ const v = s.slots[r.id]; if(v){ (seen[v] = seen[v] || []).push(r.name); const p = state.team.find(x => x.id === v); if(p && p.avail && p.avail.length && !p.avail.includes(d.getDay())) out.push(`${tag}: ${p.name} no marcó los ${DIAS[d.getDay()]}`); } });
+    state.roles.forEach(r=>{
+      const v = s.slots[r.id];
+      if(v){
+        (seen[v] = seen[v] || []).push(r.name);
+        const p = state.team.find(x => x.id === v);
+        if(p && p.avail && p.avail.length && !p.avail.includes(d.getDay()))
+          out.push(`${tag}: ${p.name} no marcó los ${DIAS[d.getDay()]}`);
+      }
+    });
     Object.entries(seen).forEach(([v, rs]) => { if(rs.length > 1) out.push(`${tag}: ${volName(v)} está en ${rs.length} funciones`); });
   });
-  $('#reviewBox').innerHTML = out.length ? out.map(t => `<div class="alert">${esc(t)}</div>`).join('') : `<div class="empty" style="padding:8px">Todo cubierto. ${list.length} culto${list.length===1?'':'s'} listo${list.length===1?'':'s'} para enviar.</div>`;
+  $('#reviewBox').innerHTML = out.length
+    ? out.map(t => `<div class="alert">${esc(t)}</div>`).join('')
+    : `<div class="empty" style="padding:8px">Todo cubierto. ${list.length} culto${list.length===1?'':'s'} listo${list.length===1?'':'s'} para enviar.</div>`;
 }
 
 function renderLoad(){
   const list = monthServices(), c = {};
   state.team.forEach(v => c[v.id] = 0);
   list.forEach(s => Object.values(s.slots).forEach(v => { if(v) c[v] = (c[v]||0)+1; }));
-  $('#loadBox').innerHTML = state.team.slice().sort((a,b) => c[b.id]-c[a.id]).map(v => `<div class="item"><div class="grow">${esc(v.name)}</div><div class="count">${c[v.id]}</div></div>`).join('') || `<div class="empty">Aún no hay nadie en el equipo.</div>`;
+  $('#loadBox').innerHTML = state.team.slice().sort((a,b) => c[b.id]-c[a.id])
+    .map(v => `<div class="item"><div class="grow">${esc(v.name)}</div><div class="count">${c[v.id]}</div></div>`).join('')
+    || `<div class="empty">Aún no hay nadie en el equipo.</div>`;
 }
 
 const initials = n => n.split(/\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase();
-const avatarHTML = (v, cls='') => `<div class="avatar ${cls}">${v.photo ? `<img src="${v.photo}" alt="">` : esc(initials(v.name || '?'))}</div>`;
+const avatarHTML = (v, cls='') =>
+  `<div class="avatar ${cls}">${v.photo ? `<img src="${v.photo}" alt="">` : esc(initials(v.name || '?'))}</div>`;
 
 function renderTeam(){
-  $('#volList').innerHTML = state.team.map(v=>{ const rs = v.roles.map(roleName).filter(Boolean).join(' · ') || 'Sin funciones marcadas'; return `<div class="vcard">${avatarHTML(v)}<div class="grow" style="flex:1;min-width:0"><div class="nm">${esc(v.name)}</div><div class="sub">${esc(rs)}</div></div><button class="btn sm" data-open="${v.id}">Ficha</button><button class="btn sm ghost danger" data-vdel="${v.id}">Quitar</button></div>`; }).join('') || `<div class="empty">Añade a la primera persona del equipo.</div>`;
+  $('#volList').innerHTML = state.team.map(v=>{
+    const rs = v.roles.map(roleName).filter(Boolean).join(' · ') || 'Sin funciones marcadas';
+    return `<div class="vcard">
+      ${avatarHTML(v)}
+      <div class="grow" style="flex:1;min-width:0">
+        <div class="nm">${esc(v.name)}</div>
+        <div class="sub">${esc(rs)}</div>
+      </div>
+      <button class="btn sm" data-open="${v.id}">Ficha</button>
+      <button class="btn sm ghost danger" data-vdel="${v.id}">Quitar</button>
+    </div>`;
+  }).join('') || `<div class="empty">Añade a la primera persona del equipo.</div>`;
+
   $('#volList').querySelectorAll('[data-open]').forEach(b => b.onclick = () => openSheet(b.dataset.open));
-  $('#volList').querySelectorAll('[data-vdel]').forEach(b=>{ b.onclick = () => { const v = state.team.find(x => x.id === b.dataset.vdel); if(!confirm(`¿Quitar a ${v.name} del equipo y de la escala?`)) return; state.team = state.team.filter(x => x.id !== b.dataset.vdel); state.services.forEach(s => Object.keys(s.slots).forEach(k => { if(s.slots[k] === b.dataset.vdel) s.slots[k] = ''; })); save(); renderAll(); }; });
+  $('#volList').querySelectorAll('[data-vdel]').forEach(b=>{
+    b.onclick = () => {
+      const v = state.team.find(x => x.id === b.dataset.vdel);
+      if(!confirm(`¿Quitar a ${v.name} del equipo y de la escala?`)) return;
+      state.team = state.team.filter(x => x.id !== b.dataset.vdel);
+      state.services.forEach(s => Object.keys(s.slots).forEach(k => { if(s.slots[k] === b.dataset.vdel) s.slots[k] = ''; }));
+      save(); renderAll();
+    };
+  });
 }
 
 let openId = null;
 const cur = () => state.team.find(v => v.id === openId);
 
-function openSheet(id){ openId = id; const v = cur(); if(!v.exp) v.exp = []; if(!v.avail) v.avail = []; $('#fName').value = v.name || ''; $('#fPhone').value = v.phone || ''; $('#fMail').value = v.mail || ''; $('#fBirth').value = v.birth || ''; $('#fSince').value = v.since || ''; $('#fNotes').value = v.notes || ''; paintSheet(); $('#sheetWrap').classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+function openSheet(id){
+  openId = id;
+  const v = cur();
+  if(!v.exp) v.exp = [];
+  if(!v.avail) v.avail = [];
+  $('#fName').value  = v.name || '';
+  $('#fPhone').value = v.phone || '';
+  $('#fMail').value  = v.mail || '';
+  $('#fBirth').value = v.birth || '';
+  $('#fSince').value = v.since || '';
+  $('#fNotes').value = v.notes || '';
+  paintSheet();
+  $('#sheetWrap').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
 
-function paintSheet(){ const v = cur(); $('#fPhoto').innerHTML = v.photo ? `<img src="${v.photo}" alt="">` : esc(initials(v.name || '?')); $('#fRoles').innerHTML = state.roles.map(r => `<button class="chip" data-fr="${r.id}" aria-pressed="${v.roles.includes(r.id)}">${esc(r.name)}</button>`).join('') || '<span class="hint">Crea funciones en la pestaña Funciones.</span>'; $('#fRoles').querySelectorAll('[data-fr]').forEach(b => b.onclick = () => { const r = b.dataset.fr; v.roles = v.roles.includes(r) ? v.roles.filter(x => x !== r) : [...v.roles, r]; save(); paintSheet(); renderServices(); }); $('#fAvail').innerHTML = DIAS.map((d,i) => `<button class="chip" data-fa="${i}" aria-pressed="${v.avail.includes(i)}">${d}</button>`).join(''); $('#fAvail').querySelectorAll('[data-fa]').forEach(b => b.onclick = () => { const i = +b.dataset.fa; v.avail = v.avail.includes(i) ? v.avail.filter(x => x !== i) : [...v.avail, i]; save(); paintSheet(); renderReview(); }); $('#fExp').innerHTML = v.exp.map((e,i)=>`<div class="exp"><input value="${esc(e.place||'')}" data-ep="${i}" placeholder="Iglesia, estudio, evento…"><input value="${esc(e.role||'')}" data-er="${i}" placeholder="Qué hacía"><input value="${esc(e.time||'')}" data-et="${i}" placeholder="Tiempo"><button class="x" data-ex="${i}" aria-label="Quitar">×</button></div>`).join('') || `<p class="hint" style="margin:0 0 9px">Sin experiencia registrada todavía.</p>`; [['ep','place'],['er','role'],['et','time']].forEach(([attr,key]=>{ $('#fExp').querySelectorAll('[data-'+attr+']').forEach(inp=>{ inp.onchange = () => { v.exp[+inp.dataset[attr]][key] = inp.value; save(); }; }); }); $('#fExp').querySelectorAll('[data-ex]').forEach(b => b.onclick = () => { v.exp.splice(+b.dataset.ex, 1); save(); paintSheet(); }); }
+function paintSheet(){
+  const v = cur();
+  $('#fPhoto').innerHTML = v.photo ? `<img src="${v.photo}" alt="">` : esc(initials(v.name || '?'));
+  $('#fRoles').innerHTML = state.roles.map(r =>
+    `<button class="chip" data-fr="${r.id}" aria-pressed="${v.roles.includes(r.id)}">${esc(r.name)}</button>`).join('')
+    || '<span class="hint">Crea funciones en la pestaña Funciones.</span>';
+  $('#fRoles').querySelectorAll('[data-fr]').forEach(b => b.onclick = () => {
+    const r = b.dataset.fr;
+    v.roles = v.roles.includes(r) ? v.roles.filter(x => x !== r) : [...v.roles, r];
+    save(); paintSheet(); renderServices();
+  });
 
-['fName','fPhone','fMail','fBirth','fSince','fNotes'].forEach(id=>{ $('#'+id).oninput = () => { const v = cur(); if(!v) return; const key = {fName:'name', fPhone:'phone', fMail:'mail', fBirth:'birth', fSince:'since', fNotes:'notes'}[id]; v[key] = $('#'+id).value; if(key === 'name') paintSheet(); save(); }; });
+  $('#fAvail').innerHTML = DIAS.map((d,i) =>
+    `<button class="chip" data-fa="${i}" aria-pressed="${v.avail.includes(i)}">${d}</button>`).join('');
+  $('#fAvail').querySelectorAll('[data-fa]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.fa;
+    v.avail = v.avail.includes(i) ? v.avail.filter(x => x !== i) : [...v.avail, i];
+    save(); paintSheet(); renderReview();
+  });
+
+  $('#fExp').innerHTML = v.exp.map((e,i)=>`
+    <div class="exp">
+      <input value="${esc(e.place||'')}" data-ep="${i}" placeholder="Iglesia, estudio, evento…">
+      <input value="${esc(e.role||'')}"  data-er="${i}" placeholder="Qué hacía">
+      <input value="${esc(e.time||'')}"  data-et="${i}" placeholder="Tiempo">
+      <button class="x" data-ex="${i}" aria-label="Quitar">×</button>
+    </div>`).join('') || `<p class="hint" style="margin:0 0 9px">Sin experiencia registrada todavía.</p>`;
+
+  [['ep','place'],['er','role'],['et','time']].forEach(([attr,key])=>{
+    $('#fExp').querySelectorAll('[data-'+attr+']').forEach(inp=>{
+      inp.onchange = () => { v.exp[+inp.dataset[attr]][key] = inp.value; save(); };
+    });
+  });
+  $('#fExp').querySelectorAll('[data-ex]').forEach(b => b.onclick = () => { v.exp.splice(+b.dataset.ex, 1); save(); paintSheet(); });
+}
+
+['fName','fPhone','fMail','fBirth','fSince','fNotes'].forEach(id=>{
+  $('#'+id).oninput = () => {
+    const v = cur(); if(!v) return;
+    const key = {fName:'name', fPhone:'phone', fMail:'mail', fBirth:'birth', fSince:'since', fNotes:'notes'}[id];
+    v[key] = $('#'+id).value;
+    if(key === 'name') paintSheet();
+    save();
+  };
+});
 
 $('#fExpAdd').onclick = () => { cur().exp.push({place:'', role:'', time:''}); save(); paintSheet(); };
-$('#fClose').onclick = () => { const v = cur(); if(v && !v.name.trim()) v.name = 'Sin nombre'; $('#sheetWrap').classList.add('hidden'); document.body.style.overflow = ''; openId = null; save(); renderAll(); };
+$('#fClose').onclick = () => {
+  const v = cur(); if(v && !v.name.trim()) v.name = 'Sin nombre';
+  $('#sheetWrap').classList.add('hidden'); document.body.style.overflow = '';
+  openId = null; save(); renderAll();
+};
 $('#sheetWrap').onclick = e => { if(e.target.id === 'sheetWrap') $('#fClose').click(); };
 document.addEventListener('keydown', e => { if(e.key === 'Escape' && openId) $('#fClose').click(); });
 
-$('#fPhoto').onclick = () => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = () => { const f = i.files[0]; if(!f) return; const r = new FileReader(); r.onload = () => { const img = new Image(); img.onload = () => { const S = 320, c = document.createElement('canvas'); c.width = c.height = S; const side = Math.min(img.width, img.height); c.getContext('2d').drawImage(img, (img.width-side)/2, (img.height-side)/2, side, side, 0, 0, S, S); cur().photo = c.toDataURL('image/jpeg', .82); save(); paintSheet(); renderTeam(); }; img.src = r.result; }; r.readAsDataURL(f); }; i.click(); };
+$('#fPhoto').onclick = () => {
+  const i = document.createElement('input');
+  i.type = 'file'; i.accept = 'image/*';
+  i.onchange = () => {
+    const f = i.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const S = 320, c = document.createElement('canvas');
+        c.width = c.height = S;
+        const side = Math.min(img.width, img.height);
+        c.getContext('2d').drawImage(img, (img.width-side)/2, (img.height-side)/2, side, side, 0, 0, S, S);
+        cur().photo = c.toDataURL('image/jpeg', .82);
+        save(); paintSheet(); renderTeam();
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(f);
+  };
+  i.click();
+};
 
-function renderRoles(){ $('#roleList').innerHTML = state.roles.map((r,i)=> `<div class="item"><input value="${esc(r.name)}" data-rname="${r.id}" style="background:transparent;border:none;padding:0" class="grow"><button class="btn sm ghost" data-up="${i}" ${i===0?'disabled':''}>↑</button><button class="btn sm ghost" data-down="${i}" ${i===state.roles.length-1?'disabled':''}>↓</button><button class="btn sm ghost danger" data-rdel="${r.id}">Quitar</button></div>`).join('') || `<div class="empty">Añade la primera función.</div>`; $('#roleList').querySelectorAll('[data-rname]').forEach(i=>{ i.onchange = () => { state.roles.find(r => r.id === i.dataset.rname).name = i.value.trim() || 'Función'; save(); renderAll(); }; }); $('#roleList').querySelectorAll('[data-rdel]').forEach(b=>{ b.onclick = () => { state.roles = state.roles.filter(r => r.id !== b.dataset.rdel); state.team.forEach(v => v.roles = v.roles.filter(r => r !== b.dataset.rdel)); save(); renderAll(); }; }); const move = (i,j) => { const a = state.roles; [a[i],a[j]] = [a[j],a[i]]; save(); renderAll(); }; $('#roleList').querySelectorAll('[data-up]').forEach(b => b.onclick = () => move(+b.dataset.up, +b.dataset.up-1)); $('#roleList').querySelectorAll('[data-down]').forEach(b => b.onclick = () => move(+b.dataset.down, +b.dataset.down+1)); }
+function renderRoles(){
+  $('#roleList').innerHTML = state.roles.map((r,i)=>`
+    <div class="item">
+      <input value="${esc(r.name)}" data-rname="${r.id}" style="background:transparent;border:none;padding:0" class="grow">
+      <button class="btn sm ghost" data-up="${i}" ${i===0?'disabled':''}>↑</button>
+      <button class="btn sm ghost" data-down="${i}" ${i===state.roles.length-1?'disabled':''}>↓</button>
+      <button class="btn sm ghost danger" data-rdel="${r.id}">Quitar</button>
+    </div>`).join('') || `<div class="empty">Añade la primera función.</div>`;
 
-function renderLogo(){ $('#logoBox').innerHTML = state.logo ? `<img src="${state.logo}" alt="Logo">` : 'Logo'; $('#subtitle').textContent = state.subtitle; }
+  $('#roleList').querySelectorAll('[data-rname]').forEach(i=>{
+    i.onchange = () => { state.roles.find(r => r.id === i.dataset.rname).name = i.value.trim() || 'Función'; save(); renderAll(); };
+  });
+  $('#roleList').querySelectorAll('[data-rdel]').forEach(b=>{
+    b.onclick = () => {
+      state.roles = state.roles.filter(r => r.id !== b.dataset.rdel);
+      state.team.forEach(v => v.roles = v.roles.filter(r => r !== b.dataset.rdel));
+      save(); renderAll();
+    };
+  });
+  const move = (i,j) => { const a = state.roles; [a[i],a[j]] = [a[j],a[i]]; save(); renderAll(); };
+  $('#roleList').querySelectorAll('[data-up]').forEach(b => b.onclick = () => move(+b.dataset.up, +b.dataset.up-1));
+  $('#roleList').querySelectorAll('[data-down]').forEach(b => b.onclick = () => move(+b.dataset.down, +b.dataset.down+1));
+}
+
+function renderLogo(){
+  $('#logoBox').innerHTML = state.logo ? `<img src="${state.logo}" alt="Logo">` : 'Logo';
+  $('#subtitle').textContent = state.subtitle;
+}
+
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-$('#btnAddSvc').onclick = () => { const date = $('#nsDate').value; if(!date) return toast('Elige una fecha'); state.services.push({id:uid(), name:$('#nsName').value.trim() || 'Culto', date, time:$('#nsTime').value || '10:00', slots:{}}); month = date.slice(0,7); $('#monthPick').value = month; save(); renderAll(); };
+$('#btnAddSvc').onclick = () => {
+  const date = $('#nsDate').value;
+  if(!date) return toast('Elige una fecha');
+  state.services.push({id:uid(), name:$('#nsName').value.trim() || 'Culto', date, time:$('#nsTime').value || '10:00', slots:{}});
+  month = date.slice(0,7); $('#monthPick').value = month;
+  save(); renderAll();
+};
 
-$('#btnGen').onclick = () => { const wd = +$('#genDay').value, name = $('#nsName').value.trim() || 'Culto', time = $('#nsTime').value || '10:00'; const [y,m] = month.split('-').map(Number); const d = new Date(y, m-1, 1); let n = 0; while(d.getMonth() === m-1){ if(d.getDay() === wd && !state.services.some(s => s.date === iso(d) && s.time === time)){ state.services.push({id:uid(), name, date:iso(d), time, slots:{}}); n++; } d.setDate(d.getDate()+1); } save(); renderAll(); toast(n ? `${n} cultos añadidos` : 'Ya estaban creados'); };
+$('#btnGen').onclick = () => {
+  const wd = +$('#genDay').value, name = $('#nsName').value.trim() || 'Culto', time = $('#nsTime').value || '10:00';
+  const [y,m] = month.split('-').map(Number);
+  const d = new Date(y, m-1, 1); let n = 0;
+  while(d.getMonth() === m-1){
+    if(d.getDay() === wd && !state.services.some(s => s.date === iso(d) && s.time === time)){
+      state.services.push({id:uid(), name, date:iso(d), time, slots:{}}); n++;
+    }
+    d.setDate(d.getDate()+1);
+  }
+  save(); renderAll(); toast(n ? `${n} cultos añadidos` : 'Ya estaban creados');
+};
 
-$('#btnAddVol').onclick = () => { const name = $('#newVol').value.trim(); if(!name) return toast('Escribe un nombre'); const id = uid(); state.team.push({id, name, roles:[], phone:'', mail:'', birth:'', since:'', photo:null, avail:[], exp:[], notes:''}); $('#newVol').value = ''; save(); renderAll(); openSheet(id); };
-$('#btnAddRole').onclick = () => { const name = $('#newRole').value.trim(); if(!name) return toast('Escribe una función'); state.roles.push({id:uid(), name}); $('#newRole').value = ''; save(); renderAll(); };
+$('#btnAddVol').onclick = () => {
+  const name = $('#newVol').value.trim();
+  if(!name) return toast('Escribe un nombre');
+  const id = uid();
+  state.team.push({id, name, roles:[], phone:'', mail:'', birth:'', since:'', photo:null, avail:[], exp:[], notes:''});
+  $('#newVol').value = '';
+  save(); renderAll(); openSheet(id);
+};
 
-document.querySelectorAll('.tab').forEach(t=>{ t.onclick = () => { document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x === t)); ['escala','equipo','funciones'].forEach(k => $('#tab-'+k).classList.toggle('hidden', k !== t.dataset.tab)); }; });
+$('#btnAddRole').onclick = () => {
+  const name = $('#newRole').value.trim();
+  if(!name) return toast('Escribe una función');
+  state.roles.push({id:uid(), name}); $('#newRole').value = '';
+  save(); renderAll();
+};
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x === t));
+    ['escala','equipo','funciones'].forEach(k => $('#tab-'+k).classList.toggle('hidden', k !== t.dataset.tab));
+  };
+});
 
 $('#monthPick').onchange = e => { month = e.target.value; renderAll(); };
 
-$('#logoBox').onclick = () => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/png,image/jpeg'; i.onchange = () => { const f = i.files[0]; if(!f) return; const r = new FileReader(); r.onload = () => { state.logo = r.result; save(); renderLogo(); toast('Logo actualizado'); }; r.readAsDataURL(f); }; i.click(); };
+$('#logoBox').onclick = () => {
+  const i = document.createElement('input');
+  i.type = 'file'; i.accept = 'image/png,image/jpeg';
+  i.onchange = () => {
+    const f = i.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = () => { state.logo = r.result; save(); renderLogo(); toast('Logo actualizado'); };
+    r.readAsDataURL(f);
+  };
+  i.click();
+};
 
-function svcText(s){ const d = parse(s.date); let t = `*ESCALA MULTIMEDIA*\n*${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}*\n${s.name}\n\n`; state.roles.forEach(r => { t += `• ${r.name}: ${s.slots[r.id] ? volName(s.slots[r.id]) : '_por confirmar_'}\n`; }); return t + `\nGracias por servir 🙌`; }
+function svcText(s){
+  const d = parse(s.date);
+  let t = `*ESCALA MULTIMEDIA*\n*${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}*\n${s.name}\n\n`;
+  state.roles.forEach(r => { t += `• ${r.name}: ${s.slots[r.id] ? volName(s.slots[r.id]) : '_por confirmar_'}\n`; });
+  return t + `\nGracias por servir 🙌`;
+}
 
-async function copyText(t){ try{ await navigator.clipboard.writeText(t); toast('Copiado, ya puedes pegarlo'); }catch(e){ window.prompt('Copia el texto:', t); } }
+async function copyText(t){
+  try{
+    await navigator.clipboard.writeText(t);
+    toast('Copiado, ya puedes pegarlo');
+  }catch(e){
+    window.prompt('Copia el texto:', t);
+  }
+}
 
-$('#btnWhats').onclick = () => { const list = monthServices(); if(!list.length) return toast('No hay cultos este mes'); const [y,m] = month.split('-').map(Number); let t = `*ESCALA MULTIMEDIA — ${MESES[m-1].toUpperCase()} ${y}*\n`; list.forEach(s=>{ const d = parse(s.date); t += `\n*${d.getDate()}/${m} · ${DIAS[d.getDay()]} · ${s.time}*\n${s.name}\n`; state.roles.forEach(r => { t += `• ${r.name}: ${s.slots[r.id] ? volName(s.slots[r.id]) : '—'}\n`; }); }); copyText(t); };
+$('#btnWhats').onclick = () => {
+  const list = monthServices();
+  if(!list.length) return toast('No hay cultos este mes');
+  const [y,m] = month.split('-').map(Number);
+  let t = `*ESCALA MULTIMEDIA — ${MESES[m-1].toUpperCase()} ${y}*\n`;
+  list.forEach(s=>{
+    const d = parse(s.date);
+    t += `\n*${d.getDate()}/${m} · ${DIAS[d.getDay()]} · ${s.time}*\n${s.name}\n`;
+    state.roles.forEach(r => { t += `• ${r.name}: ${s.slots[r.id] ? volName(s.slots[r.id]) : '—'}\n`; });
+  });
+  copyText(t);
+};
 
 $('#btnPdf').onclick = () => makePDF(monthServices());
 
-function makePDF(list){ if(!list.length) return toast('No hay cultos que exportar'); const { jsPDF } = window.jspdf; const doc = new jsPDF({unit:'mm', format:'a4'}); const W = 210, M = 14; const [y, m] = month.split('-').map(Number); const dark = [18,22,29], amber = [200,135,40], grey = [125,135,150], line = [222,226,232]; const header = () => { doc.setFillColor(...dark); doc.rect(0, 0, W, 32, 'F'); let tx = M; if(state.logo){ try{ doc.addImage(state.logo, 'PNG', M, 7, 18, 18); tx = M + 24; }catch(e){} } doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(17); doc.text('Escala de multimedia', tx, 15); doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(200,205,215); doc.text(`${MESES[m-1]} ${y} · ${state.subtitle}`, tx, 22); doc.setFillColor(...amber); doc.rect(0, 32, W, 1.2, 'F'); return 44; }; let cy = header(); const rowH = 6.4; list.forEach(s=>{ const d = parse(s.date); const blockH = 15 + state.roles.length * rowH + 7; if(cy + blockH > 280){ doc.addPage(); cy = header(); } doc.setFillColor(242,244,247); doc.roundedRect(M, cy, W-2*M, 11, 1.6, 1.6, 'F'); doc.setTextColor(...dark); doc.setFont('helvetica','bold'); doc.setFontSize(11.5); doc.text(`${d.getDate()} de ${MESES[d.getMonth()]}`, M+4, cy+7.4); doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...grey); doc.text(`${DIAS[d.getDay()]}  ·  ${s.time}  ·  ${s.name}`, M+42, cy+7.4); cy += 15; state.roles.forEach((r,i)=>{ if(i){ doc.setDrawColor(...line); doc.setLineWidth(.2); doc.line(M+4, cy-3.1, W-M-4, cy-3.1); } doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(...grey); doc.text(r.name, M+4, cy); const v = s.slots[r.id]; doc.setFont('helvetica', v ? 'bold' : 'normal'); doc.setTextColor(...(v ? dark : [190,80,70])); doc.text(v ? volName(v) : 'por confirmar', M+62, cy); cy += rowH; }); cy += 7; }); const pages = doc.internal.getNumberOfPages(); for(let p=1; p<=pages; p++){ doc.setPage(p); doc.setFontSize(8.5); doc.setTextColor(...grey); doc.setFont('helvetica','normal'); const now = new Date(); doc.text(`Actualizado el ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`, M, 289); doc.text(`${p}/${pages}`, W-M, 289, {align:'right'}); } const single = list.length === 1 ? '-' + list[0].date : ''; doc.save(`escala-multimedia-${month}${single}.pdf`); }
+function makePDF(list){
+  if(!list.length) return toast('No hay cultos que exportar');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'mm', format:'a4'});
+  const W = 210, M = 14;
+  const [y, m] = month.split('-').map(Number);
+  const dark = [18,22,29], amber = [200,135,40], grey = [125,135,150], line = [222,226,232];
 
-$('#fPdf').onclick = () => { const v = cur(); if(!v) return; const { jsPDF } = window.jspdf; const doc = new jsPDF({unit:'mm', format:'a4'}); const W = 210, M = 16, dark = [18,22,29], amber = [200,135,40], grey = [125,135,150], line = [222,226,232]; doc.setFillColor(...dark); doc.rect(0, 0, W, 46, 'F'); doc.setFillColor(...amber); doc.rect(0, 46, W, 1.2, 'F'); let tx = M; if(v.photo){ try{ doc.addImage(v.photo, 'JPEG', M, 9, 28, 28); tx = M + 34; }catch(e){} } doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(19); doc.text(v.name || 'Sin nombre', tx, 22); doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(200,205,215); doc.text(`Ficha de voluntario · ${state.subtitle}`, tx, 30); if(state.logo){ try{ doc.addImage(state.logo, 'PNG', W-M-16, 12, 16, 16); }catch(e){} } let y = 60; const H = t => { doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...dark); doc.text(t, M, y); y += 3; doc.setDrawColor(...line); doc.setLineWidth(.3); doc.line(M, y, W-M, y); y += 7; }; const P = (k, val) => { doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...grey); doc.text(k, M, y); doc.setTextColor(...dark); doc.setFont('helvetica','bold'); doc.text(String(val || '—'), M+46, y); y += 6.6; }; H('Contacto'); P('Teléfono', v.phone); P('Correo', v.mail); P('Cumpleaños', v.birth ? (() => { const d = parse(v.birth); return `${d.getDate()} de ${MESES[d.getMonth()]}`; })() : ''); P('En el equipo desde', v.since); y += 5; H('Funciones'); doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...dark); doc.text(doc.splitTextToSize(v.roles.map(roleName).filter(Boolean).join(' · ') || 'Sin funciones marcadas', W-2*M), M, y); y += 6 + (v.roles.length > 5 ? 5 : 0); y += 5; H('Días disponibles'); doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...dark); doc.text((v.avail && v.avail.length ? v.avail.slice().sort().map(i => DIAS[i]).join(' · ') : 'Sin restricción indicada'), M, y); y += 11; H('Experiencia en otros sitios'); if(v.exp && v.exp.length){ v.exp.forEach(e=>{ doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...dark); doc.text(e.place || '—', M, y); doc.setFont('helvetica','normal'); doc.setTextColor(...grey); doc.text([e.role, e.time].filter(Boolean).join(' · '), M+70, y); y += 6.4; }); } else { doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...grey); doc.text('Sin experiencia registrada.', M, y); y += 6.4; } y += 6; H('Notas'); doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...dark); doc.text(doc.splitTextToSize(v.notes || '—', W-2*M), M, y); const now = new Date(); doc.setFontSize(8.5); doc.setTextColor(...grey); doc.text(`Actualizado el ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`, M, 289); doc.save(`ficha-${(v.name||'voluntario').toLowerCase().replace(/\s+/g,'-')}.pdf`); };
+  const header = () => {
+    doc.setFillColor(...dark); doc.rect(0, 0, W, 32, 'F');
+    let tx = M;
+    if(state.logo){
+      try{ doc.addImage(state.logo, 'PNG', M, 7, 18, 18); tx = M + 24; }catch(e){}
+    }
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(17);
+    doc.text('Escala de multimedia', tx, 15);
+    doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(200,205,215);
+    doc.text(`${MESES[m-1]} ${y} · ${state.subtitle}`, tx, 22);
+    doc.setFillColor(...amber); doc.rect(0, 32, W, 1.2, 'F');
+    return 44;
+  };
 
-function toast(msg){ const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; document.body.appendChild(el); setTimeout(() => el.remove(), 2200); }
+  let cy = header();
+  const rowH = 6.4;
 
-/* ---------- BOTÓN SINCRONIZAR CON GOOGLE SHEETS ---------- */
+  list.forEach(s=>{
+    const d = parse(s.date);
+    const blockH = 15 + state.roles.length * rowH + 7;
+    if(cy + blockH > 280){ doc.addPage(); cy = header(); }
+
+    doc.setFillColor(242,244,247); doc.roundedRect(M, cy, W-2*M, 11, 1.6, 1.6, 'F');
+    doc.setTextColor(...dark); doc.setFont('helvetica','bold'); doc.setFontSize(11.5);
+    doc.text(`${d.getDate()} de ${MESES[d.getMonth()]}`, M+4, cy+7.4);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...grey);
+    doc.text(`${DIAS[d.getDay()]}  ·  ${s.time}  ·  ${s.name}`, M+42, cy+7.4);
+    cy += 15;
+
+    state.roles.forEach((r,i)=>{
+      if(i){ doc.setDrawColor(...line); doc.setLineWidth(.2); doc.line(M+4, cy-3.1, W-M-4, cy-3.1); }
+      doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(...grey);
+      doc.text(r.name, M+4, cy);
+      const v = s.slots[r.id];
+      doc.setFont('helvetica', v ? 'bold' : 'normal');
+      doc.setTextColor(...(v ? dark : [190,80,70]));
+      doc.text(v ? volName(v) : 'por confirmar', M+62, cy);
+      cy += rowH;
+    });
+    cy += 7;
+  });
+
+  const pages = doc.internal.getNumberOfPages();
+  for(let p=1; p<=pages; p++){
+    doc.setPage(p);
+    doc.setFontSize(8.5); doc.setTextColor(...grey); doc.setFont('helvetica','normal');
+    const now = new Date();
+    doc.text(`Actualizado el ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`, M, 289);
+    doc.text(`${p}/${pages}`, W-M, 289, {align:'right'});
+  }
+
+  const single = list.length === 1 ? '-' + list[0].date : '';
+  doc.save(`escala-multimedia-${month}${single}.pdf`);
+}
+
+$('#fPdf').onclick = () => {
+  const v = cur(); if(!v) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'mm', format:'a4'});
+  const W = 210, M = 16, dark = [18,22,29], amber = [200,135,40], grey = [125,135,150], line = [222,226,232];
+
+  doc.setFillColor(...dark); doc.rect(0, 0, W, 46, 'F');
+  doc.setFillColor(...amber); doc.rect(0, 46, W, 1.2, 'F');
+  let tx = M;
+  if(v.photo){ try{ doc.addImage(v.photo, 'JPEG', M, 9, 28, 28); tx = M + 34; }catch(e){} }
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(19);
+  doc.text(v.name || 'Sin nombre', tx, 22);
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(200,205,215);
+  doc.text(`Ficha de voluntario · ${state.subtitle}`, tx, 30);
+  if(state.logo){ try{ doc.addImage(state.logo, 'PNG', W-M-16, 12, 16, 16); }catch(e){} }
+
+  let y = 60;
+  const H = t => { doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...dark); doc.text(t, M, y); y += 3;
+    doc.setDrawColor(...line); doc.setLineWidth(.3); doc.line(M, y, W-M, y); y += 7; };
+  const P = (k, val) => {
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...grey); doc.text(k, M, y);
+    doc.setTextColor(...dark); doc.setFont('helvetica','bold');
+    doc.text(String(val || '—'), M+46, y); y += 6.6;
+  };
+
+  H('Contacto');
+  P('Teléfono', v.phone); P('Correo', v.mail);
+  P('Cumpleaños', v.birth ? (() => { const d = parse(v.birth); return `${d.getDate()} de ${MESES[d.getMonth()]}`; })() : '');
+  P('En el equipo desde', v.since);
+
+  y += 5; H('Funciones');
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...dark);
+  doc.text(doc.splitTextToSize(v.roles.map(roleName).filter(Boolean).join(' · ') || 'Sin funciones marcadas', W-2*M), M, y);
+  y += 6 + (v.roles.length > 5 ? 5 : 0);
+
+  y += 5; H('Días disponibles');
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...dark);
+  doc.text((v.avail && v.avail.length ? v.avail.slice().sort().map(i => DIAS[i]).join(' · ') : 'Sin restricción indicada'), M, y);
+  y += 11;
+
+  H('Experiencia en otros sitios');
+  if(v.exp && v.exp.length){
+    v.exp.forEach(e=>{
+      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...dark);
+      doc.text(e.place || '—', M, y);
+      doc.setFont('helvetica','normal'); doc.setTextColor(...grey);
+      doc.text([e.role, e.time].filter(Boolean).join(' · '), M+70, y);
+      y += 6.4;
+    });
+  } else { doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...grey); doc.text('Sin experiencia registrada.', M, y); y += 6.4; }
+
+  y += 6; H('Notas');
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...dark);
+  doc.text(doc.splitTextToSize(v.notes || '—', W-2*M), M, y);
+
+  const now = new Date();
+  doc.setFontSize(8.5); doc.setTextColor(...grey);
+  doc.text(`Actualizado el ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`, M, 289);
+  doc.save(`ficha-${(v.name||'voluntario').toLowerCase().replace(/\s+/g,'-')}.pdf`);
+};
+
+function toast(msg){
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+
+/* ---------- sincronización google sheets ---------- */
 $('#btnSync').onclick = async () => {
   const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzkG7Xj1wqxwOlNg69fkjUKfQ_41B2JsfUuNbnTbfWV4eg0Grt1iiemB5QaHo3C_vyL4A/exec';
   try {
@@ -587,14 +977,43 @@ $('#btnSync').onclick = async () => {
   }
 };
 
-$('#btnCloud').onclick = () => { $('#cUrl').value = cfg.url; $('#cPin').value = cfg.pin; $('#cloudWrap').classList.remove('hidden'); };
+/* ---------- diálogo de la hoja ---------- */
+$('#btnCloud').onclick = () => {
+  $('#cUrl').value = cfg.url; $('#cPin').value = cfg.pin;
+  $('#cloudWrap').classList.remove('hidden');
+};
+
 const closeCloud = () => $('#cloudWrap').classList.add('hidden');
 $('#cloudWrap').onclick = e => { if(e.target.id === 'cloudWrap') closeCloud(); };
-$('#cSave').onclick = async () => { cfg = {url: $('#cUrl').value.trim(), pin: $('#cPin').value.trim()}; await lset(K_CFG, JSON.stringify(cfg)); closeCloud(); cfg.url ? pull() : pill('Solo este dispositivo'); };
-$('#cPush').onclick = async () => { cfg = {url: $('#cUrl').value.trim(), pin: $('#cPin').value.trim()}; if(!cfg.url) return toast('Falta la dirección'); await lset(K_CFG, JSON.stringify(cfg)); closeCloud(); await push(); };
-$('#cOff').onclick = async () => { cfg = {url:'', pin:''}; await lset(K_CFG, JSON.stringify(cfg)); closeCloud(); pill('Solo este dispositivo'); };
+$('#cSave').onclick = async () => {
+  cfg = {url: $('#cUrl').value.trim(), pin: $('#cPin').value.trim()};
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud();
+  cfg.url ? pull() : pill('Solo este dispositivo');
+};
+$('#cPush').onclick = async () => {
+  cfg = {url: $('#cUrl').value.trim(), pin: $('#cPin').value.trim()};
+  if(!cfg.url) return toast('Falta la dirección');
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud(); await push();
+};
+$('#cOff').onclick = async () => {
+  cfg = {url:'', pin:''};
+  await lset(K_CFG, JSON.stringify(cfg));
+  closeCloud(); pill('Solo este dispositivo');
+};
 
-(async function init(){ const c = await lget(K_CFG); if(c){ try{ cfg = JSON.parse(c); }catch(e){} } state = await load(); normalizar(); $('#monthPick').value = month; $('#nsName').value = 'Culto de domingo'; renderAll(); if(cfg.url) pull(); else pill('Solo este dispositivo'); })();
+/* ---------- arranque ---------- */
+(async function init(){
+  const c = await lget(K_CFG);
+  if(c){ try{ cfg = JSON.parse(c); }catch(e){} }
+  state = await load();
+  normalizar();
+  $('#monthPick').value = month;
+  $('#nsName').value = 'Culto de domingo';
+  renderAll();
+  if(cfg.url) pull(); else pill('Solo este dispositivo');
+})();
 </script>
 </body>
 </html>
