@@ -1,3 +1,8 @@
+bash
+
+cat /mnt/user-data/outputs/multimedia-final.html
+Salida
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,6 +41,7 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
+/* ---------- barra superior: mesa de control ---------- */
 .bar{
   position:sticky;top:0;z-index:30;
   background:linear-gradient(180deg,#161C25,#12161D);
@@ -67,6 +73,7 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 .btn.sm{padding:6px 10px;font-size:13px}
 .btn.danger:hover{border-color:var(--tally);color:#FF7C71}
 
+/* ---------- pestañas ---------- */
 .tabs{display:flex;gap:4px;padding:0 16px;border-bottom:1px solid var(--line);background:#141922}
 .tab{
   background:none;border:none;border-bottom:2px solid transparent;
@@ -83,6 +90,7 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 .panel-h h2{margin:0;font-size:18px;font-weight:600}
 .panel-b{padding:16px}
 
+/* ---------- generador / controles ---------- */
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
 .field{display:flex;flex-direction:column;gap:5px;min-width:0}
 .field label{font-size:12px;color:var(--muted)}
@@ -98,6 +106,7 @@ input::placeholder{color:#5C6675}
   .row .field{flex:1 1 130px}
 }
 
+/* ---------- tarjeta de culto ---------- */
 .svc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
 .svc-h{display:flex;gap:14px;align-items:center;padding:13px 15px;background:#1D242F;border-bottom:1px solid var(--line)}
 .daychip{
@@ -119,6 +128,7 @@ input::placeholder{color:#5C6675}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none}
 .slot.gap .dot{background:var(--tally)}
 
+/* ---------- listas laterales ---------- */
 .list{display:flex;flex-direction:column;gap:8px}
 .item{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px}
 .item .grow{flex:1;min-width:0}
@@ -147,6 +157,7 @@ input::placeholder{color:#5C6675}
 .pill.warn{color:#FFB4AC;border-color:rgba(255,68,54,.4)}
 .pill.busy{color:var(--amber);border-color:rgba(232,163,61,.45)}
 
+/* ---------- fichas de voluntario ---------- */
 .avatar{
   width:44px;height:44px;border-radius:50%;flex:none;overflow:hidden;
   background:var(--panel-2);border:1px solid var(--line);
@@ -194,7 +205,6 @@ textarea{
     <button class="btn" id="btnCloud">Hoja</button>
     <button class="btn" id="btnWhats">Copiar para WhatsApp</button>
     <button class="btn primary" id="btnPdf">Descargar PDF</button>
-    <button class="btn ghost" onclick="window.location.href='/'">← Volver</button>
   </div>
 </header>
 
@@ -320,7 +330,6 @@ textarea{
       </div>
     </div>
   </section>
-
   <!-- CONEXIÓN CON LA HOJA -->
   <div class="overlay hidden" id="cloudWrap">
     <div class="sheet" style="max-width:520px" role="dialog" aria-modal="true" aria-label="Conexión con la hoja">
@@ -343,9 +352,68 @@ textarea{
 </main>
 
 <script>
+/* ============================================================
+   Estado
+   ============================================================ */
 const uid = () => Math.random().toString(36).slice(2,9);
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const DIAS  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+function demoData(){
+  const roles = [
+    {id:'r1', name:'Dirección de corte'},
+    {id:'r2', name:'PTZ'},
+    {id:'r3', name:'Cámara móvil'},
+    {id:'r4', name:'Streaming (OBS)'},
+    {id:'r5', name:'Holyrics'},
+    {id:'r6', name:'Sonido'},
+    {id:'r7', name:'Fotografía'}
+  ];
+  const V = (id,name,roles,phone,mail,since,avail,exp,notes) =>
+    ({id, name, roles, phone, mail, since, birth:'', photo:null, avail, exp, notes});
+  const team = [
+    V('v1','Marcos Ferreira',['r1','r2','r4'],'+34 611 22 33 44','marcos.f@correo.com','marzo de 2021',[0,3],
+      [{place:'Iglesia Central de Vigo',role:'Dirección de corte',time:'3 años'},{place:'Productora Vía Norte',role:'Cámara de eventos',time:'1 año'}],
+      'Conoce bien el ATEM. Puede formar a gente nueva en corte.'),
+    V('v2','Lucía Ramos',['r3','r7'],'+34 622 33 44 55','lucia.ramos@correo.com','enero de 2023',[0],
+      [{place:'Estudio Luz Marina',role:'Fotografía de eventos',time:'2 años'}],
+      'Prefiere cámara móvil en la primera parte del culto.'),
+    V('v3','Iván Delgado',['r5','r4'],'+34 633 44 55 66','ivan.d@correo.com','septiembre de 2024',[0,3],
+      [{place:'Campamento juvenil Betel',role:'Proyección y letras',time:'2 veranos'}], ''),
+    V('v4','Nerea Castillo',['r5','r7'],'+34 644 55 66 77','nerea.c@correo.com','mayo de 2025',[0],
+      [], 'Nueva en Holyrics, aún acompañada.'),
+    V('v5','Rubén Alcántara',['r6','r4'],'+34 655 66 77 88','ruben.a@correo.com','febrero de 2020',[0,3],
+      [{place:'Sala Arenal',role:'Técnico de sonido en directo',time:'5 años'}],
+      'Referencia para la X32.'),
+    V('v6','Sara Montoya',['r3','r5'],'+34 666 77 88 99','sara.m@correo.com','octubre de 2023',[3],
+      [], 'Solo puede entre semana durante el curso.'),
+    V('v7','Diego Pinheiro',['r1','r2','r6'],'+34 677 88 99 00','diego.p@correo.com','agosto de 2019',[0,3],
+      [{place:'Igreja Nova Vida, Lisboa',role:'Dirección de transmisión',time:'4 años'}],
+      'Segundo director de corte.'),
+    V('v8','Carla Ibáñez',['r7','r3'],'+34 688 99 00 11','carla.i@correo.com','abril de 2022',[0],
+      [{place:'Revista local Enfoque',role:'Reportaje fotográfico',time:'2 años'}], '')
+  ];
+  const today = new Date();
+  const y = today.getFullYear(), m = today.getMonth();
+  const services = [];
+  const d = new Date(y, m, 1);
+  while(d.getMonth() === m){
+    if(d.getDay() === 0){
+      services.push({id:uid(), name:'Culto de domingo', date:iso(d), time:'10:00', slots:{}});
+    }
+    if(d.getDay() === 3){
+      services.push({id:uid(), name:'Culto de oración', date:iso(d), time:'20:00', slots:{}});
+    }
+    d.setDate(d.getDate()+1);
+  }
+  // reparto de ejemplo
+  const rota = {
+    r1:['v1','v7'], r2:['v7','v1'], r3:['v2','v6','v8'], r4:['v3','v5','v1'],
+    r5:['v4','v6','v3'], r6:['v5','v7'], r7:['v8','v2','v4']
+  };
+  services.forEach((s,i)=>{ roles.forEach(r=>{ const p = rota[r.id]; s.slots[r.id] = p[i % p.length]; }); });
+  return {roles, team, services, logo:null, subtitle:'Equipo de transmisión'};
+}
 
 let state = null;
 let month = new Date().toISOString().slice(0,7);
@@ -354,6 +422,7 @@ const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-$
 const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
 const $ = s => document.querySelector(s);
 
+/* ---------- guardado: este dispositivo + hoja de cálculo ---------- */
 const K_DATOS = 'escala-multimedia', K_CFG = 'escala-multimedia-cfg';
 let cfg = {url:'', pin:''};
 
@@ -362,7 +431,6 @@ async function lget(k){
   try{ return localStorage.getItem(k); }catch(e){}
   return null;
 }
-
 async function lset(k, v){
   try{ if(window.storage) await window.storage.set(k, v); }catch(e){}
   try{ localStorage.setItem(k, v); }catch(e){}
@@ -431,67 +499,15 @@ function normalizar(){
   });
 }
 
-function demoData(){
-  const roles = [
-    {id:'r1', name:'Dirección de corte'},
-    {id:'r2', name:'PTZ'},
-    {id:'r3', name:'Cámara móvil'},
-    {id:'r4', name:'Streaming (OBS)'},
-    {id:'r5', name:'Holyrics'},
-    {id:'r6', name:'Sonido'},
-    {id:'r7', name:'Fotografía'}
-  ];
-  const V = (id,name,roles,phone,mail,since,avail,exp,notes) =>
-    ({id, name, roles, phone, mail, since, birth:'', photo:null, avail, exp, notes});
-  const team = [
-    V('v1','Marcos Ferreira',['r1','r2','r4'],'+34 611 22 33 44','marcos.f@correo.com','marzo de 2021',[0,3],
-      [{place:'Iglesia Central de Vigo',role:'Dirección de corte',time:'3 años'},{place:'Productora Vía Norte',role:'Cámara de eventos',time:'1 año'}],
-      'Conoce bien el ATEM. Puede formar a gente nueva en corte.'),
-    V('v2','Lucía Ramos',['r3','r7'],'+34 622 33 44 55','lucia.ramos@correo.com','enero de 2023',[0],
-      [{place:'Estudio Luz Marina',role:'Fotografía de eventos',time:'2 años'}],
-      'Prefiere cámara móvil en la primera parte del culto.'),
-    V('v3','Iván Delgado',['r5','r4'],'+34 633 44 55 66','ivan.d@correo.com','septiembre de 2024',[0,3],
-      [{place:'Campamento juvenil Betel',role:'Proyección y letras',time:'2 veranos'}], ''),
-    V('v4','Nerea Castillo',['r5','r7'],'+34 644 55 66 77','nerea.c@correo.com','mayo de 2025',[0],
-      [], 'Nueva en Holyrics, aún acompañada.'),
-    V('v5','Rubén Alcántara',['r6','r4'],'+34 655 66 77 88','ruben.a@correo.com','febrero de 2020',[0,3],
-      [{place:'Sala Arenal',role:'Técnico de sonido en directo',time:'5 años'}],
-      'Referencia para la X32.'),
-    V('v6','Sara Montoya',['r3','r5'],'+34 666 77 88 99','sara.m@correo.com','octubre de 2023',[3],
-      [], 'Solo puede entre semana durante el curso.'),
-    V('v7','Diego Pinheiro',['r1','r2','r6'],'+34 677 88 99 00','diego.p@correo.com','agosto de 2019',[0,3],
-      [{place:'Igreja Nova Vida, Lisboa',role:'Dirección de transmisión',time:'4 años'}],
-      'Segundo director de corte.'),
-    V('v8','Carla Ibáñez',['r7','r3'],'+34 688 99 00 11','carla.i@correo.com','abril de 2022',[0],
-      [{place:'Revista local Enfoque',role:'Reportaje fotográfico',time:'2 años'}], '')
-  ];
-  const today = new Date();
-  const y = today.getFullYear(), m = today.getMonth();
-  const services = [];
-  const d = new Date(y, m, 1);
-  while(d.getMonth() === m){
-    if(d.getDay() === 0){
-      services.push({id:uid(), name:'Culto de domingo', date:iso(d), time:'10:00', slots:{}});
-    }
-    if(d.getDay() === 3){
-      services.push({id:uid(), name:'Culto de oración', date:iso(d), time:'20:00', slots:{}});
-    }
-    d.setDate(d.getDate()+1);
-  }
-  const rota = {
-    r1:['v1','v7'], r2:['v7','v1'], r3:['v2','v6','v8'], r4:['v3','v5','v1'],
-    r5:['v4','v6','v3'], r6:['v5','v7'], r7:['v8','v2','v4']
-  };
-  services.forEach((s,i)=>{ roles.forEach(r=>{ const p = rota[r.id]; s.slots[r.id] = p[i % p.length]; }); });
-  return {roles, team, services, logo:null, subtitle:'Equipo de transmisión'};
-}
-
 async function load(){
   const raw = await lget(K_DATOS);
   if(raw){ try{ return JSON.parse(raw); }catch(e){} }
   return demoData();
 }
 
+/* ============================================================
+   Render
+   ============================================================ */
 const monthServices = () =>
   state.services.filter(s => s.date.startsWith(month))
                 .sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
@@ -617,6 +633,7 @@ function renderTeam(){
   });
 }
 
+/* ---------- ficha ---------- */
 let openId = null;
 const cur = () => state.team.find(v => v.id === openId);
 
@@ -691,6 +708,7 @@ $('#fClose').onclick = () => {
 $('#sheetWrap').onclick = e => { if(e.target.id === 'sheetWrap') $('#fClose').click(); };
 document.addEventListener('keydown', e => { if(e.key === 'Escape' && openId) $('#fClose').click(); });
 
+/* foto: se reduce a 320 px antes de guardarla */
 $('#fPhoto').onclick = () => {
   const i = document.createElement('input');
   i.type = 'file'; i.accept = 'image/*';
@@ -742,9 +760,11 @@ function renderLogo(){
   $('#logoBox').innerHTML = state.logo ? `<img src="${state.logo}" alt="Logo">` : 'Logo';
   $('#subtitle').textContent = state.subtitle;
 }
-
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
+/* ============================================================
+   Acciones
+   ============================================================ */
 $('#btnAddSvc').onclick = () => {
   const date = $('#nsDate').value;
   if(!date) return toast('Elige una fecha');
@@ -774,7 +794,6 @@ $('#btnAddVol').onclick = () => {
   $('#newVol').value = '';
   save(); renderAll(); openSheet(id);
 };
-
 $('#btnAddRole').onclick = () => {
   const name = $('#newRole').value.trim();
   if(!name) return toast('Escribe una función');
@@ -803,6 +822,7 @@ $('#logoBox').onclick = () => {
   i.click();
 };
 
+/* ---------- texto para WhatsApp ---------- */
 function svcText(s){
   const d = parse(s.date);
   let t = `*ESCALA MULTIMEDIA*\n*${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}*\n${s.name}\n\n`;
@@ -810,13 +830,68 @@ function svcText(s){
   return t + `\nGracias por servir 🙌`;
 }
 
-async function copyText(t){
-  try{
-    await navigator.clipboard.writeText(t);
-    toast('Copiado, ya puedes pegarlo');
-  }catch(e){
-    window.prompt('Copia el texto:', t);
-  }
+function copyText(t){
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.style.zIndex = '70';
+  
+  const sheet = document.createElement('div');
+  sheet.className = 'sheet';
+  sheet.style.maxWidth = '500px';
+  
+  const h = document.createElement('div');
+  h.className = 'sheet-h';
+  h.innerHTML = '<h2 style="margin:0;font-size:18px">Copiar para WhatsApp</h2>';
+  sheet.appendChild(h);
+  
+  const b = document.createElement('div');
+  b.className = 'sheet-b';
+  const ta = document.createElement('textarea');
+  ta.value = t;
+  ta.style.minHeight = '200px';
+  ta.style.fontFamily = 'monospace';
+  ta.style.fontSize = '13px';
+  ta.style.cursor = 'text';
+  ta.onload = () => ta.select();
+  ta.select();
+  b.appendChild(ta);
+  sheet.appendChild(b);
+  
+  const f = document.createElement('div');
+  f.className = 'sheet-f';
+  const btnClose = document.createElement('button');
+  btnClose.className = 'btn ghost';
+  btnClose.textContent = 'Cerrar';
+  const btnCopy = document.createElement('button');
+  btnCopy.className = 'btn primary';
+  btnCopy.textContent = '✓ Copiar al portapapeles';
+  
+  btnCopy.onclick = async () => {
+    try{
+      await navigator.clipboard.writeText(t);
+      toast('✓ Copiado a portapapeles');
+      overlay.remove();
+    }catch(e){
+      ta.select();
+      document.execCommand('copy');
+      toast('✓ Copiado (ahora pégalo)');
+      overlay.remove();
+    }
+  };
+  
+  btnClose.onclick = () => overlay.remove();
+  
+  f.appendChild(btnClose);
+  f.appendChild(btnCopy);
+  sheet.appendChild(f);
+  
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+  
+  ta.focus();
+  ta.select();
+  
+  overlay.onclick = e => { if(e.target === overlay) overlay.remove(); };
 }
 
 $('#btnWhats').onclick = () => {
@@ -832,6 +907,7 @@ $('#btnWhats').onclick = () => {
   copyText(t);
 };
 
+/* ---------- PDF ---------- */
 $('#btnPdf').onclick = () => makePDF(monthServices());
 
 function makePDF(list){
@@ -864,6 +940,7 @@ function makePDF(list){
     const blockH = 15 + state.roles.length * rowH + 7;
     if(cy + blockH > 280){ doc.addPage(); cy = header(); }
 
+    // franja de fecha
     doc.setFillColor(242,244,247); doc.roundedRect(M, cy, W-2*M, 11, 1.6, 1.6, 'F');
     doc.setTextColor(...dark); doc.setFont('helvetica','bold'); doc.setFontSize(11.5);
     doc.text(`${d.getDate()} de ${MESES[d.getMonth()]}`, M+4, cy+7.4);
@@ -884,6 +961,7 @@ function makePDF(list){
     cy += 7;
   });
 
+  // pie
   const pages = doc.internal.getNumberOfPages();
   for(let p=1; p<=pages; p++){
     doc.setPage(p);
@@ -983,7 +1061,6 @@ $('#btnCloud').onclick = () => {
   $('#cUrl').value = cfg.url; $('#cPin').value = cfg.pin;
   $('#cloudWrap').classList.remove('hidden');
 };
-
 const closeCloud = () => $('#cloudWrap').classList.add('hidden');
 $('#cloudWrap').onclick = e => { if(e.target.id === 'cloudWrap') closeCloud(); };
 $('#cSave').onclick = async () => {
@@ -1018,3 +1095,6 @@ $('#cOff').onclick = async () => {
 </script>
 </body>
 </html>
+El código actualizado completo está arriba 👆 (en el bloque de código largo que acabo de mostrar).
+
+Instrucciones:
