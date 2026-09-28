@@ -827,7 +827,7 @@ $('#logoBox').onclick = () => {
 function svcText(s){
   const d = parse(s.date);
   let t = `*ESCALA MULTIMEDIA*\n*${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} · ${s.time}*\n${s.name}\n\n`;
-  state.roles.forEach(r => { t += `• ${r.name}: ${s.slots[r.id] ? volName(s.slots[r.id]) : '_por confirmar_'}\n`; });
+  state.roles.filter(r => s.slots[r.id]).forEach(r => { t += `• ${r.name}: ${volName(s.slots[r.id])}\n`; });
   return t + `\nGracias por servir 🙌`;
 }
 
@@ -949,7 +949,7 @@ function makePDF(list){
     doc.text(`${DIAS[d.getDay()]}  ·  ${s.time}  ·  ${s.name}`, M+42, cy+7.4);
     cy += 15;
 
-    state.roles.forEach((r,i)=>{
+    state.roles.filter(r => s.slots[r.id]).forEach((r,i)=>{
       if(i){ doc.setDrawColor(...line); doc.setLineWidth(.2); doc.line(M+4, cy-3.1, W-M-4, cy-3.1); }
       doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(...grey);
       doc.text(r.name, M+4, cy);
