@@ -526,7 +526,7 @@ function renderServices(){
   }
   box.innerHTML = list.map(s=>{
     const d = parse(s.date);
-    const slots = state.roles.map(r=>{
+    const slots = state.roles.filter(r => s.slots[r.id]).map(r=>{
       const val = s.slots[r.id] || '';
       const opts = state.team.filter(v => v.roles.includes(r.id))
         .map(v => `<option value="${v.id}" ${val===v.id?'selected':''}>${esc(v.name)}</option>`).join('');
